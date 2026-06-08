@@ -1,165 +1,245 @@
 .synth-button-link {
   display: inline-block;
   text-decoration: none;
+  line-height: 0;
 }
 
-.synth-tile {
+/* ================================================================
+   WRAPPER — stacks label above tile
+   ================================================================ */
+
+.synth-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 6px 6px 7px;
-  border-radius: 6px;
+  gap: 4px;
   cursor: pointer;
   user-select: none;
-  position: relative;
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
 }
 
-/* === COLOR VARIANTS === */
+/* ================================================================
+   HEADER — indicator dot + label text (outside the tile)
+   ================================================================ */
 
-.synth-tile--black {
-  background-color: var(--synth-black-tile);
-}
-
-.synth-tile--black .synth-tile__label {
-  color: var(--synth-black-text);
-}
-
-.synth-tile--black .synth-tile__number {
-  color: var(--synth-black-text);
-}
-
-.synth-tile--black .synth-tile__button {
-  background-color: var(--synth-black-button);
-}
-
-.synth-tile--gray {
-  background-color: var(--synth-gray-tile);
-}
-
-.synth-tile--gray .synth-tile__label {
-  color: var(--synth-gray-text);
-}
-
-.synth-tile--gray .synth-tile__number {
-  color: var(--synth-gray-text);
-}
-
-.synth-tile--gray .synth-tile__button {
-  background-color: var(--synth-gray-button);
-}
-
-.synth-tile--blue {
-  background-color: var(--synth-blue-tile);
-}
-
-.synth-tile--blue .synth-tile__label {
-  color: var(--synth-blue-text);
-}
-
-.synth-tile--blue .synth-tile__number {
-  color: var(--synth-blue-text) !important; /* blue always white */
-}
-
-.synth-tile--blue .synth-tile__button {
-  background-color: var(--synth-blue-button);
-}
-
-.synth-tile--white {
-  background-color: var(--synth-white-tile);
-}
-
-.synth-tile--white .synth-tile__label {
-  color: var(--synth-white-text);
-}
-
-.synth-tile--white .synth-tile__number {
-  color: var(--synth-white-text);
-}
-
-.synth-tile--white .synth-tile__button {
-  background-color: var(--synth-white-button);
-}
-
-/* === HEADER ROW === */
-
-.synth-tile__header {
-  width: 100%;
+.synth-wrapper__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 3px;
 }
 
-.synth-tile__label {
+.synth-wrapper__label {
   font-family: var(--font-mono);
   font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wider);
+  letter-spacing: 0.08em;
   line-height: 1;
   white-space: nowrap;
 }
 
-.synth-tile__indicator {
+.synth-wrapper__indicator {
   border-radius: 50%;
-  background-color: var(--color-text-muted);
   flex-shrink: 0;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
-.synth-tile__indicator--active {
-  background-color: var(--pulse-color, var(--color-accent));
-  animation: indicator-pulse 2s ease-in-out infinite;
+.synth-wrapper__indicator--active {
+  background-color: var(--accent, var(--color-accent)) !important;
+  animation: pulseGlow 1.5s ease-in-out infinite;
 }
 
-/* === BUTTON CIRCLE === */
+/* Theme: label + indicator appearance */
+
+.synth-wrapper--light .synth-wrapper__label { color: #000000; }
+.synth-wrapper--light .synth-wrapper__indicator { background-color: #333333; }
+
+.synth-wrapper--dark .synth-wrapper__label {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.08);
+}
+.synth-wrapper--dark .synth-wrapper__indicator { background-color: #cccccc; }
+
+/* ================================================================
+   TILE — the raised platform the button sits on
+   Three-tier shadow: drop + highlight + edge definition
+   ================================================================ */
+
+.synth-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+  transition: background-color 120ms ease;
+}
+
+.synth-tile--small { border-radius: 8px; }
+.synth-tile--medium { border-radius: 10px; }
+.synth-tile--large { border-radius: 14px; }
+
+/* ================================================================
+   TILE VARIANTS — material finishes + tile-level shadows
+   ================================================================ */
+
+.synth-tile--black {
+  background-color: var(--synth-black-tile);
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.6),
+    -2px -2px 8px rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+.synth-tile--black .synth-tile__button {
+  background: radial-gradient(circle at 50% 38%, #3a3a42 0%, var(--synth-black-button) 70%);
+}
+.synth-tile--black .synth-tile__number { color: var(--synth-black-number); }
+
+.synth-tile--gray {
+  background-color: var(--synth-gray-tile);
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.35),
+    -2px -2px 8px rgba(255, 255, 255, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.synth-tile--gray .synth-tile__button {
+  background: radial-gradient(circle at 50% 38%, #aeaeae 0%, var(--synth-gray-button) 70%);
+}
+.synth-tile--gray .synth-tile__number { color: var(--synth-gray-number); }
+
+.synth-tile--blue {
+  background-color: var(--synth-blue-tile);
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.5),
+    -2px -2px 8px rgba(16, 153, 227, 0.15),
+    0 0 20px rgba(16, 153, 227, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.synth-tile--blue .synth-tile__button {
+  background: radial-gradient(circle at 50% 38%, #1aa4f0 0%, var(--synth-blue-button) 70%);
+}
+.synth-tile--blue .synth-tile__number { color: #ffffff; }
+
+.synth-tile--white {
+  background-color: var(--synth-white-tile);
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.15),
+    -2px -2px 8px rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+.synth-tile--white .synth-tile__button {
+  background: radial-gradient(circle at 50% 38%, #ffffff 0%, var(--synth-white-button) 60%);
+}
+.synth-tile--white .synth-tile__number { color: #333333; }
+
+/* ================================================================
+   ACTIVE GLOW — radial light behind button (via ::before)
+   ================================================================ */
+
+.synth-wrapper--active .synth-tile::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  height: 75%;
+  border-radius: 50%;
+  background: var(--accent, var(--color-accent));
+  opacity: 0.2;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+/* ================================================================
+   BUTTON — the pressable cap with directional lighting
+   Raised state: inner bevels + outer drop shadow + rim light
+   ================================================================ */
 
 .synth-tile__button {
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   will-change: transform;
   backface-visibility: hidden;
+  z-index: 1;
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.15),
-    0 1px 2px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    3px 3px 6px rgba(0, 0, 0, 0.5),
+    -1px -1px 3px rgba(255, 255, 255, 0.05),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.1);
+  transition:
+    transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+/* Concentric ring — machined edge / gasket detail */
+.synth-tile__button::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.synth-tile--large .synth-tile__button::after {
+  border-width: 1.5px;
+}
+
+/* ================================================================
+   NUMBER TEXT
+   ================================================================ */
 
 .synth-tile__number {
   font-family: var(--font-mono);
   font-weight: var(--weight-regular);
   line-height: 1;
-  transition: color 0.18s ease;
+  transition: color 200ms ease, text-shadow 200ms ease;
+  position: relative;
+  z-index: 1;
 }
 
-/* === HOVER === */
-
-.synth-tile--black:hover {
-  background-color: #2a2a2a;
+/* Active number glow (not on blue — blue stays white) */
+.synth-wrapper--active .synth-tile:not(.synth-tile--blue) .synth-tile__number {
+  text-shadow: 0 0 8px var(--accent, var(--color-accent));
 }
 
-/* === PRESS STATE === */
+/* ================================================================
+   HOVER — subtle tile shift
+   ================================================================ */
 
-.synth-tile:active .synth-tile__button {
+.synth-tile--black:hover { background-color: #222224; }
+
+/* ================================================================
+   PRESS — 60ms snap in, 160ms spring back
+   ================================================================ */
+
+.synth-wrapper:active .synth-tile__button {
   transform: scale(0.96);
   box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.15),
-    inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    1px 1px 2px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.7),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.03);
+  transition:
+    transform 60ms ease-in,
+    box-shadow 60ms ease-in;
 }
 
-/* === ACTIVE (current page) === */
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
 
-.synth-tile--active .synth-tile__number {
-  color: var(--accent, var(--color-accent));
-}
-
-/* Blue variant always overrides with !important above */
-
-/* === THEME VARIANTS === */
-
-.synth-tile--dark .synth-tile__label {
-  text-shadow: none;
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+    box-shadow: 0 0 4px var(--pulse-color, var(--color-accent));
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+    box-shadow: 0 0 10px var(--pulse-color, var(--color-accent));
+  }
 }

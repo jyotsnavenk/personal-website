@@ -1,0 +1,165 @@
+.synth-button-link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.synth-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 6px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* === COLOR VARIANTS === */
+
+.synth-tile--black {
+  background-color: var(--synth-black-tile);
+}
+
+.synth-tile--black .synth-tile__label {
+  color: var(--synth-black-text);
+}
+
+.synth-tile--black .synth-tile__number {
+  color: var(--synth-black-text);
+}
+
+.synth-tile--black .synth-tile__button {
+  background-color: var(--synth-black-button);
+}
+
+.synth-tile--gray {
+  background-color: var(--synth-gray-tile);
+}
+
+.synth-tile--gray .synth-tile__label {
+  color: var(--synth-gray-text);
+}
+
+.synth-tile--gray .synth-tile__number {
+  color: var(--synth-gray-text);
+}
+
+.synth-tile--gray .synth-tile__button {
+  background-color: var(--synth-gray-button);
+}
+
+.synth-tile--blue {
+  background-color: var(--synth-blue-tile);
+}
+
+.synth-tile--blue .synth-tile__label {
+  color: var(--synth-blue-text);
+}
+
+.synth-tile--blue .synth-tile__number {
+  color: var(--synth-blue-text) !important; /* blue always white */
+}
+
+.synth-tile--blue .synth-tile__button {
+  background-color: var(--synth-blue-button);
+}
+
+.synth-tile--white {
+  background-color: var(--synth-white-tile);
+}
+
+.synth-tile--white .synth-tile__label {
+  color: var(--synth-white-text);
+}
+
+.synth-tile--white .synth-tile__number {
+  color: var(--synth-white-text);
+}
+
+.synth-tile--white .synth-tile__button {
+  background-color: var(--synth-white-button);
+}
+
+/* === HEADER ROW === */
+
+.synth-tile__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.synth-tile__label {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wider);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.synth-tile__indicator {
+  border-radius: 50%;
+  background-color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.synth-tile__indicator--active {
+  background-color: var(--pulse-color, var(--color-accent));
+  animation: indicator-pulse 2s ease-in-out infinite;
+}
+
+/* === BUTTON CIRCLE === */
+
+.synth-tile__button {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  backface-visibility: hidden;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.synth-tile__number {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-regular);
+  line-height: 1;
+  transition: color 0.18s ease;
+}
+
+/* === HOVER === */
+
+.synth-tile--black:hover {
+  background-color: #2a2a2a;
+}
+
+/* === PRESS STATE === */
+
+.synth-tile:active .synth-tile__button {
+  transform: scale(0.96);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.15),
+    inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* === ACTIVE (current page) === */
+
+.synth-tile--active .synth-tile__number {
+  color: var(--accent, var(--color-accent));
+}
+
+/* Blue variant always overrides with !important above */
+
+/* === THEME VARIANTS === */
+
+.synth-tile--dark .synth-tile__label {
+  text-shadow: none;
+}

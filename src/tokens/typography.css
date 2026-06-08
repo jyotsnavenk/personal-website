@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+:root {
+  /* === FONT FAMILIES === */
+  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-mono: 'IBM Plex Mono', 'Space Mono', 'SF Mono', monospace;
+  --font-body: 'IBM Plex Sans', 'Helvetica Neue', sans-serif;
+  /* === FONT SIZES (fluid scale) === */
+  --text-xs: clamp(0.6rem, 1vw, 0.7rem);
+  --text-sm: clamp(0.75rem, 1.2vw, 0.875rem);
+  --text-base: clamp(0.875rem, 1.5vw, 1rem);
+  --text-md: clamp(1rem, 1.8vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 2vw, 1.375rem);
+  --text-xl: clamp(1.5rem, 3vw, 2rem);
+  --text-2xl: clamp(2rem, 5vw, 3.5rem);
+  --text-3xl: clamp(2.5rem, 7vw, 5rem);
+  --text-hero: clamp(3rem, 10vw, 8rem);
+  /* === FONT WEIGHTS === */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+  /* === LINE HEIGHTS === */
+  --leading-tight: 1.1;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  /* === LETTER SPACING === */
+  --tracking-tight: -0.03em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.15em;
+}

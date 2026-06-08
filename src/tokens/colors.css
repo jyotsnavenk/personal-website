@@ -1,0 +1,35 @@
+:root {
+  /* === BACKGROUNDS === */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F5F5F5;
+  --color-bg-surface: #F0F0F0;
+  --color-bg-elevated: #E8E8E8;
+  /* === TEXT === */
+  --color-text-primary: #000000;
+  --color-text-secondary: #1E1E1E;
+  --color-text-muted: #B8B8B8;
+  --color-text-inverse: #FFFFFF;
+  /* === ACCENT — change this to repaint the whole site === */
+  --color-accent: #1099E3;
+  --color-accent-dim: rgba(16, 153, 227, 0.1);
+  --color-accent-glow: rgba(16, 153, 227, 0.3);
+  /* === MUSIC-SPECIFIC === */
+  --color-music-active: #1099E3;
+  --color-music-glow: rgba(16, 153, 227, 0.2);
+  /* === BORDERS === */
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-border-active: rgba(0, 0, 0, 0.14);
+  /* === SYNTH BUTTON VARIANTS === */
+  --synth-black-tile: #1E1E1E;
+  --synth-black-button: #333333;
+  --synth-black-text: #FFFFFF;
+  --synth-gray-tile: #B8B8B8;
+  --synth-gray-button: #A0A0A0;
+  --synth-gray-text: #1E1E1E;
+  --synth-blue-tile: #1099E3;
+  --synth-blue-button: #0d8ad0;
+  --synth-blue-text: #FFFFFF;
+  --synth-white-tile: #F5F5F5;
+  --synth-white-button: #FFFFFF;
+  --synth-white-text: #000000;
+}

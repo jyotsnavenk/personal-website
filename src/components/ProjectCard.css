@@ -53,9 +53,9 @@
 }
 
 .project-card__placeholder-num {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-3xl);
-  font-weight: var(--weight-light);
+  font-weight: var(--weight-regular);
   color: var(--color-text-muted);
   letter-spacing: var(--tracking-tight);
 }
@@ -76,7 +76,7 @@
 }
 
 .project-card__company {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-wider);
@@ -85,7 +85,7 @@
 }
 
 .project-card__title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--color-text-primary);

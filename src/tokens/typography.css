@@ -1,32 +1,131 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontrealText-Book.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontrealText-BookItalic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-SemiboldItalic.otf') format('opentype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal Text';
+  src: url('/fonts/PPNeueMontrealText-Book.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal Text';
+  src: url('/fonts/PPNeueMontrealText-BookItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
 
 :root {
   /* === FONT FAMILIES === */
+  --font-sans: 'PP Neue Montreal', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans-text: 'PP Neue Montreal Text', 'PP Neue Montreal', 'Helvetica Neue', Arial, sans-serif;
   --font-display: 'Playfair Display', 'Georgia', serif;
-  --font-mono: 'IBM Plex Mono', 'Space Mono', 'SF Mono', monospace;
-  --font-body: 'IBM Plex Sans', 'Helvetica Neue', sans-serif;
-  /* === FONT SIZES (fluid scale) === */
-  --text-xs: clamp(0.6rem, 1vw, 0.7rem);
-  --text-sm: clamp(0.75rem, 1.2vw, 0.875rem);
-  --text-base: clamp(0.875rem, 1.5vw, 1rem);
-  --text-md: clamp(1rem, 1.8vw, 1.125rem);
-  --text-lg: clamp(1.125rem, 2vw, 1.375rem);
-  --text-xl: clamp(1.5rem, 3vw, 2rem);
-  --text-2xl: clamp(2rem, 5vw, 3.5rem);
-  --text-3xl: clamp(2.5rem, 7vw, 5rem);
-  --text-hero: clamp(3rem, 10vw, 8rem);
+  --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  --font-body: var(--font-sans);
+
+  /* === FONT SIZES — S (360–1200px) defaults === */
+  --text-base: 12px;
+  --leading-base: 1.4;
+
   /* === FONT WEIGHTS === */
   --weight-light: 300;
   --weight-regular: 400;
   --weight-medium: 500;
-  --weight-bold: 700;
+  --weight-semibold: 600;
+  --weight-bold: 600;
+
   /* === LINE HEIGHTS === */
   --leading-tight: 1.1;
-  --leading-normal: 1.5;
+  --leading-normal: var(--leading-base);
   --leading-relaxed: 1.75;
+
   /* === LETTER SPACING === */
   --tracking-tight: -0.03em;
   --tracking-normal: 0em;
   --tracking-wide: 0.08em;
   --tracking-wider: 0.15em;
+
+  /* === GRID === */
+  --grid-columns: 12;
+  --grid-padding: 44px;
+  --grid-gap: 24px;
+}
+
+/* M — Desktop (1200px–1600px) */
+@media (min-width: 1200px) {
+  :root {
+    --text-base: 14px;
+    --leading-base: 1.5;
+  }
+}
+
+/* L — Large screens (above 1600px) */
+@media (min-width: 1600px) {
+  :root {
+    --text-base: 16px;
+    --leading-base: 1.4;
+  }
 }

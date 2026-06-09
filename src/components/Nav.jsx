@@ -14,7 +14,7 @@ export default function Nav() {
   const location = useLocation()
 
   return (
-    <nav className="nav animate-slide-down" aria-label="Main navigation">
+    <nav className="nav" aria-label="Main navigation">
       <div className="nav__inner">
         {NAV_ITEMS.map((item) => {
           const isActive = item.href.startsWith('http')

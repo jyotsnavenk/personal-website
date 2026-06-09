@@ -1,36 +1,23 @@
 .nav {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  bottom: 40px;
+  right: var(--grid-padding);
   z-index: 100;
-  background-color: var(--color-bg-primary);
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding: 10px 24px;
 }
 
 .nav__inner {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 @media (max-width: 600px) {
   .nav {
-    padding: 8px 12px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .nav::-webkit-scrollbar {
-    display: none;
+    right: var(--grid-padding);
+    bottom: 24px;
   }
 
   .nav__inner {
-    justify-content: flex-start;
-    min-width: max-content;
+    gap: 8px;
   }
 }

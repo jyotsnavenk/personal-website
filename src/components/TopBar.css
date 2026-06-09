@@ -1,0 +1,30 @@
+.topbar {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.topbar__name {
+  grid-column: 1 / span 1;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  white-space: nowrap;
+}
+
+.topbar__tagline {
+  grid-column: 6 / span 2;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .topbar__name {
+    grid-column: 1 / span 4;
+  }
+
+  .topbar__tagline {
+    grid-column: 5 / span 8;
+  }
+}

@@ -1,5 +1,4 @@
 .music {
-  padding-top: 76px;
   min-height: 100vh;
   position: relative;
   opacity: 0;
@@ -27,20 +26,22 @@
 /* === CONTENT === */
 
 .music__content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 48px 48px 80px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: var(--grid-gap);
+  padding: 48px var(--grid-padding) 80px;
 }
 
 /* === HEADER === */
 
 .music__header {
+  grid-column: 1 / span 6;
   margin-bottom: 40px;
 }
 
 .music__page-label {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wider);
   color: var(--color-text-muted);
@@ -49,7 +50,7 @@
 }
 
 .music__title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-3xl);
   font-style: italic;
   font-weight: var(--weight-bold);
@@ -61,12 +62,14 @@
 /* === VISUALIZER === */
 
 .music__visualizer-wrap {
+  grid-column: 1 / span 8;
   margin-bottom: 32px;
 }
 
 /* === PLAYER === */
 
 .music__player {
+  grid-column: 1 / span 8;
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
@@ -83,21 +86,21 @@
 }
 
 .music__now-playing {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-music-active);
   letter-spacing: var(--tracking-wide);
 }
 
 .music__track-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-lg);
   font-style: italic;
   color: var(--color-text-primary);
 }
 
 .music__track-genre {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   letter-spacing: var(--tracking-wide);
@@ -139,7 +142,7 @@
 }
 
 .music__time {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   white-space: nowrap;
@@ -170,6 +173,7 @@
 /* === TRACKLIST === */
 
 .music__tracklist {
+  grid-column: 1 / span 8;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -196,7 +200,7 @@
 }
 
 .music__track-num {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   width: 24px;
@@ -209,7 +213,6 @@
   color: var(--color-music-active);
 }
 
-/* Animated bars for now-playing */
 .music__track-bars {
   display: flex;
   align-items: flex-end;
@@ -238,7 +241,7 @@
 }
 
 .music__track-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-base);
   font-style: italic;
   color: var(--color-text-primary);
@@ -252,14 +255,14 @@
 }
 
 .music__track-meta {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   letter-spacing: var(--tracking-wide);
 }
 
 .music__track-dur {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   flex-shrink: 0;
@@ -267,6 +270,13 @@
 
 @media (max-width: 600px) {
   .music__content {
-    padding: 32px 24px 60px;
+    padding: 32px var(--grid-padding) 60px;
+  }
+
+  .music__header,
+  .music__visualizer-wrap,
+  .music__player,
+  .music__tracklist {
+    grid-column: 1 / -1;
   }
 }

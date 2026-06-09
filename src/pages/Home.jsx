@@ -62,36 +62,40 @@ export default function Home() {
 
   return (
     <div className="page home animate-page-enter">
-      <section className="hero" ref={heroRef}>
-        <h1 className="hero__heading">
-          {HERO_LINES.map((line, i) => (
-            <HeroLine key={line} text={line} delay={i * 80} lineHeight={88} />
-          ))}
-        </h1>
+      <section className="hero grid" ref={heroRef}>
+        <div className="hero__heading-wrap">
+          <h1 className="hero__heading">
+            {HERO_LINES.map((line, i) => (
+              <HeroLine key={line} text={line} delay={i * 80} lineHeight={88} />
+            ))}
+          </h1>
+        </div>
 
-        <div
-          className={['hero__body', bodyRevealed ? 'hero__body--visible' : ''].join(' ')}
-          style={bodyMeasure.ready ? { minHeight: bodyMeasure.height } : undefined}
-        >
-          <p>
-            Jyotsna is a product designer based in SF ツ<br />
-            2x founding designer who enjoys being a part of early-stage startups to build
-            products from the ground up. Most recently I was a founding designer at{' '}
-            <a href="https://www.withfulcrum.com/" target="_blank" rel="noopener noreferrer" className="link-underline">
-              Fulcrum
-            </a>{' '}
-            designing end-to-end agentic workflows for insurance brokerages and prior to that
-            I was a founding designer at{' '}
-            <a href="https://hanomi.ai/" target="_blank" rel="noopener noreferrer" className="link-underline">
-              Hanomi
-            </a>{' '}
-            designing intelligence layers for mechanical engineers. Every pixel of the work
-            you see below is entirely my own.
-          </p>
+        <div className="hero__body-wrap">
+          <div
+            className={['hero__body', bodyRevealed ? 'hero__body--visible' : ''].join(' ')}
+            style={bodyMeasure.ready ? { minHeight: bodyMeasure.height } : undefined}
+          >
+            <p>
+              <span className="hero__body-bold">Jyotsna is a product designer based in SF ツ</span><br />
+              2x founding designer who enjoys being a part of early-stage startups to build
+              products from the ground up. Most recently I was a founding designer at{' '}
+              <a href="https://www.withfulcrum.com/" target="_blank" rel="noopener noreferrer" className="link-underline">
+                Fulcrum
+              </a>{' '}
+              designing end-to-end agentic workflows for insurance brokerages and prior to that
+              I was a founding designer at{' '}
+              <a href="https://hanomi.ai/" target="_blank" rel="noopener noreferrer" className="link-underline">
+                Hanomi
+              </a>{' '}
+              designing intelligence layers for mechanical engineers.
+            </p>
+            <p>Every pixel of the work you see below is entirely my own.</p>
+          </div>
         </div>
       </section>
 
-      <section className="projects" aria-label="Portfolio projects">
+      <section className="projects grid" aria-label="Portfolio projects">
         <div className="projects__grid">
           {PROJECTS.map((project, i) => (
             <ProjectCard

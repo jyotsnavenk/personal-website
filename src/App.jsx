@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
+import TopBar from './components/TopBar'
 import Nav from './components/Nav'
 import Home from './pages/Home'
 import Vibecode from './pages/Vibecode'
@@ -10,6 +11,7 @@ export default function App() {
 
   return (
     <>
+      <TopBar />
       <Nav />
       <main>
         <Routes location={location} key={location.pathname}>

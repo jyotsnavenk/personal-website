@@ -60,41 +60,79 @@ function StickyProjects({ companyDescriptions }) {
   const outerRef = useRef(null)
   const cardsRef = useRef(null)
   const textRef = useRef(null)
+  const sectionRef = useRef(null)
   const [outerHeight, setOuterHeight] = useState('auto')
 
   useEffect(() => {
     const outer = outerRef.current
     const cards = cardsRef.current
     const text = textRef.current
-    if (!outer || !cards) return
+    const section = sectionRef.current
+    if (!outer || !cards || !section) return
 
     // SPEED > 1 lengthens the scroll runway so the cards travel slower than the
     // page scroll. EASE controls the trailing lag (lower = laggier/softer).
-    const SPEED = 1.5
-    const EASE = 0.09
+    const SPEED = 2.2
+    const EASE = 0.07
 
     let travel = 0   // how far the card column must move to show the last card
     let runway = 0   // scroll distance allotted for that travel (travel * SPEED)
     let target = 0   // resting position derived from scroll
     let current = 0  // eased position actually rendered
+    let stops = [0]  // translate values that center each card (dwell points)
     let rafId = null
     let running = false
     let reduceMotion = false
 
     const measure = () => {
-      travel = Math.max(0, cards.scrollHeight - window.innerHeight)
+      // Build the dwell points: for each card, the translate amount that lands
+      // its center on the viewport center. The section pins to top:0, so we
+      // measure each card's center as an offset from the section top (which
+      // becomes the viewport top once pinned) — this is independent of where
+      // the section currently sits on the page (e.g. below the hero). The eased
+      // mapping below slows to a near-stop at each of these, so every project
+      // gets a beat in the center before the column moves on.
+      const prevTransform = cards.style.transform
+      cards.style.transform = 'translate3d(0, 0, 0)'
+      const viewportCenter = window.innerHeight / 2
+      const sectionTop = section.getBoundingClientRect().top
+      const centers = []
+      for (const card of cards.children) {
+        const r = card.getBoundingClientRect()
+        centers.push(Math.max(0, r.top - sectionTop + r.height / 2 - viewportCenter))
+      }
+      cards.style.transform = prevTransform
+
+      // Travel must reach far enough that even the LAST card lands on center —
+      // not merely become visible at the bottom — so each project can dwell.
+      const lastCenter = centers.length ? centers[centers.length - 1] : 0
+      travel = Math.max(0, cards.scrollHeight - window.innerHeight, lastCenter)
       runway = Math.round(travel * SPEED)
       setOuterHeight(runway > 0 ? `calc(100vh + ${runway}px)` : 'auto')
+
+      const raw = [0, ...centers.map((c) => Math.min(travel, c))]
+      raw.sort((a, b) => a - b)
+      stops = raw.filter((v, i) => i === 0 || v - raw[i - 1] > 1)
     }
 
+    // 6t^5 - 15t^4 + 10t^3 — eases in and out with zero velocity at both ends,
+    // so the column decelerates into each dwell point and accelerates out of it.
+    const smootherstep = (t) => t * t * t * (t * (t * 6 - 15) + 10)
+
     const computeTarget = () => {
-      if (runway <= 0) {
+      if (runway <= 0 || stops.length < 2) {
         target = 0
         return
       }
       const top = outer.getBoundingClientRect().top
       const progress = Math.min(1, Math.max(0, -top / runway))
-      target = progress * travel
+      // Spread the stops evenly across the runway, then ease between each pair.
+      const segments = stops.length - 1
+      const t = progress * segments
+      let k = Math.floor(t)
+      if (k >= segments) k = segments - 1
+      const frac = smootherstep(t - k)
+      target = stops[k] + (stops[k + 1] - stops[k]) * frac
     }
 
     let activeCompany = -1
@@ -185,6 +223,7 @@ function StickyProjects({ companyDescriptions }) {
       style={{ height: outerHeight }}
     >
       <section
+        ref={sectionRef}
         className="projects projects--sticky grid"
         aria-label="Portfolio projects"
       >

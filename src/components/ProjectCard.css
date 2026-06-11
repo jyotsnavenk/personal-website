@@ -87,7 +87,7 @@
 .project-card__title {
   font-family: var(--font-body);
   font-size: var(--text-lg);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-medium);
   color: var(--color-text-primary);
   line-height: var(--leading-tight);
 }

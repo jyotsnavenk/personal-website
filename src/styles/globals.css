@@ -19,8 +19,8 @@ body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--leading-base);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
   min-height: 100vh;
   overflow-x: hidden;
 }

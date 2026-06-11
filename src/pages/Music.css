@@ -53,7 +53,7 @@
   font-family: var(--font-body);
   font-size: var(--text-3xl);
   font-style: italic;
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-medium);
   color: var(--color-text-primary);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
@@ -242,7 +242,7 @@
 
 .music__track-title {
   font-family: var(--font-body);
-  font-size: var(--text-base);
+  font-size: var(--text-body);
   font-style: italic;
   color: var(--color-text-primary);
   white-space: nowrap;

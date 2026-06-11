@@ -1,3 +1,43 @@
+/* =============================================
+   SERIF — Domaine Text (Heading + Caption)
+   ============================================= */
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/TestDomaineText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/TestDomaineText-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/TestDomaineText-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/TestDomaineText-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* =============================================
+   SANS SERIF — Neue Montreal (Body)
+   ============================================= */
+
 @font-face {
   font-family: 'PP Neue Montreal';
   src: url('/fonts/PPNeueMontreal-Light.otf') format('opentype');
@@ -32,22 +72,6 @@
 
 @font-face {
   font-family: 'PP Neue Montreal';
-  src: url('/fonts/PPNeueMontrealText-Book.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'PP Neue Montreal';
-  src: url('/fonts/PPNeueMontrealText-BookItalic.otf') format('opentype');
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'PP Neue Montreal';
   src: url('/fonts/PPNeueMontreal-Semibold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
@@ -62,44 +86,36 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'PP Neue Montreal Text';
-  src: url('/fonts/PPNeueMontrealText-Book.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'PP Neue Montreal Text';
-  src: url('/fonts/PPNeueMontrealText-BookItalic.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
+/* =============================================
+   TOKENS
+   ============================================= */
 
 :root {
   /* === FONT FAMILIES === */
+  --font-serif: 'Domaine Text', 'Georgia', serif;
   --font-sans: 'PP Neue Montreal', 'Helvetica Neue', Arial, sans-serif;
-  --font-sans-text: 'PP Neue Montreal Text', 'PP Neue Montreal', 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Playfair Display', 'Georgia', serif;
   --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+
+  /* === HEADING — Domaine Text, Regular/Medium/Italic === */
+  --text-heading: 48px;
+  --font-heading: var(--font-serif);
+
+  /* === CAPTION — Domaine Text, Regular/Italic === */
+  --text-caption: 12px;
+  --font-caption: var(--font-serif);
+
+  /* === BODY — Neue Montreal, Regular/Medium/Italic === */
+  --text-body: 14px;
   --font-body: var(--font-sans);
 
-  /* === FONT SIZES — S (360–1200px) defaults === */
-  --text-base: 12px;
-  --leading-base: 1.4;
-
   /* === FONT WEIGHTS === */
-  --weight-light: 300;
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
-  --weight-bold: 600;
 
   /* === LINE HEIGHTS === */
   --leading-tight: 1.1;
-  --leading-normal: var(--leading-base);
+  --leading-normal: 1.4;
   --leading-relaxed: 1.75;
 
   /* === LETTER SPACING === */
@@ -117,15 +133,17 @@
 /* M — Desktop (1200px–1600px) */
 @media (min-width: 1200px) {
   :root {
-    --text-base: 14px;
-    --leading-base: 1.5;
+    --text-heading: 56px;
+    --text-caption: 14px;
+    --text-body: 15px;
   }
 }
 
-/* L — Large screens (above 1600px) */
+/* L — Monitor (above 1600px) */
 @media (min-width: 1600px) {
   :root {
-    --text-base: 16px;
-    --leading-base: 1.4;
+    --text-heading: 64px;
+    --text-caption: 16px;
+    --text-body: 16px;
   }
 }

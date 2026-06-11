@@ -79,17 +79,17 @@ export default function MusicVisualizer({ isPlaying = false, trackName = '', cur
       // Draw track name overlay using pretext for layout
       if (trackName) {
         document.fonts.ready.then(() => {
-          ctx.font = '400 13px "IBM Plex Mono"'
+          ctx.font = '400 13px "Martina Plantijn"'
           ctx.fillStyle = 'rgba(240, 240, 240, 0.5)'
 
-          const prepared = prepareWithSegments(trackName, '400 13px "IBM Plex Mono"')
+          const prepared = prepareWithSegments(trackName, '400 13px "Martina Plantijn"')
           const { lines } = layoutWithLines(prepared, W - 32, 18)
           for (let i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i].text, 16, 18 + i * 18)
           }
 
           if (currentTime) {
-            ctx.font = '300 11px "IBM Plex Mono"'
+            ctx.font = '300 11px "Martina Plantijn"'
             ctx.fillStyle = 'rgba(136, 136, 136, 0.6)'
             ctx.fillText(currentTime, 16, H - 10)
           }

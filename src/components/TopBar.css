@@ -6,7 +6,7 @@
 
 .topbar__name {
   grid-column: 1 / span 2;
-  font-family: var(--font-caption);
+  font-family: var(--font-family);
   font-size: var(--text-caption);
   font-weight: var(--weight-regular);
   white-space: nowrap;
@@ -22,7 +22,7 @@
 
 .topbar__heading {
   display: block;
-  font-family: var(--font-caption);
+  font-family: var(--font-family);
   font-size: var(--text-caption);
   font-weight: var(--weight-regular);
   margin-bottom: 0;
@@ -36,7 +36,7 @@
 }
 
 .topbar__links {
-  font-family: var(--font-caption);
+  font-family: var(--font-family);
   font-size: var(--text-caption);
   font-weight: var(--weight-regular);
   font-style: italic;

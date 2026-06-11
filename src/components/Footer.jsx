@@ -9,7 +9,7 @@ const SOCIAL_LINKS = [
 ]
 
 function FooterLink({ label, href }) {
-  const measure = usePretextMeasure(label, '400 10px "IBM Plex Mono"', 200, 14)
+  const measure = usePretextMeasure(label, '400 12px "Martina Plantijn"', 200, 14)
 
   return (
     <a
@@ -26,7 +26,7 @@ function FooterLink({ label, href }) {
 }
 
 export default function Footer() {
-  const taglineMeasure = usePretextMeasure('happily tinkering', 'italic 400 10px "IBM Plex Mono"', 300, 14)
+  const taglineMeasure = usePretextMeasure('happily tinkering', 'italic 400 12px "Martina Plantijn"', 300, 14)
 
   return (
     <footer className="footer">

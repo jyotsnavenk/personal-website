@@ -6,7 +6,7 @@ import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
 
 const HERO_LINES = ['design AND', 'creative technology']
-const HERO_FONT = 'italic 700 80px "Playfair Display"'
+const HERO_FONT = 'italic 500 16px "Martina Plantijn"'
 const BODY_TEXT = 'Jyotsna is a product designer based in SF. 2x founding designer who enjoys being a part of early-stage startups to build products from the ground up.'
 
 const PROJECTS = [
@@ -319,9 +319,9 @@ export default function Home() {
 
   const bodyMeasure = usePretextMeasure(
     BODY_TEXT,
-    '300 16px "IBM Plex Sans"',
+    '400 14px "Martina Plantijn"',
     Math.min(heroWidth, 620),
-    28
+    21
   )
 
   useEffect(() => {
@@ -339,7 +339,7 @@ export default function Home() {
         <div className="hero__heading-wrap">
           <h1 className="hero__heading">
             {HERO_LINES.map((line, i) => (
-              <HeroLine key={line} text={line} delay={i * 80} lineHeight={88} />
+              <HeroLine key={line} text={line} delay={i * 80} lineHeight={20} />
             ))}
           </h1>
         </div>

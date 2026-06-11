@@ -44,7 +44,7 @@
 }
 
 .project-card__title {
-  font-family: var(--font-body);
+  font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   font-style: italic;
@@ -53,7 +53,7 @@
 }
 
 .project-card__desc {
-  font-family: var(--font-body);
+  font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   line-height: var(--leading-normal);

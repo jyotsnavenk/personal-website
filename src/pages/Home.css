@@ -14,8 +14,8 @@
 }
 
 .hero__heading {
-  font-family: var(--font-body);
-  font-size: var(--text-hero);
+  font-family: var(--font-family);
+  font-size: var(--text-heading);
   font-style: italic;
   font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
@@ -44,10 +44,10 @@
 }
 
 .hero__body {
-  font-family: var(--font-body);
-  font-size: var(--text-md);
+  font-family: var(--font-family);
+  font-size: var(--text-body);
   font-weight: var(--weight-regular);
-  line-height: var(--leading-relaxed);
+  line-height: var(--leading-normal);
   color: var(--color-text-secondary);
   opacity: 0;
   transform: translateY(12px);
@@ -118,7 +118,7 @@
 }
 
 .projects__company-name {
-  font-family: var(--font-body);
+  font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-normal);
@@ -127,7 +127,7 @@
 }
 
 .projects__company-desc {
-  font-family: var(--font-body);
+  font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   line-height: var(--leading-normal);

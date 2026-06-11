@@ -29,7 +29,7 @@
 }
 
 .synth-wrapper__label {
-  font-family: var(--font-mono);
+  font-family: var(--font-family);
   font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
   line-height: 1;
@@ -193,7 +193,7 @@
    ================================================================ */
 
 .synth-tile__number {
-  font-family: var(--font-mono);
+  font-family: var(--font-family);
   font-weight: var(--weight-regular);
   line-height: 1;
   transition: color 200ms ease, text-shadow 200ms ease;

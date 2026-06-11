@@ -3,9 +3,9 @@ import Footer from '../components/Footer'
 import './Placeholder.css'
 
 export default function Exhibit() {
-  const labelMeasure = usePretextMeasure('exhibit', '500 10px "IBM Plex Mono"', 300, 14)
-  const titleMeasure = usePretextMeasure('coming soon', 'italic 700 64px "Playfair Display"', 800, 70)
-  const subMeasure = usePretextMeasure('creative work & side projects', '300 16px "IBM Plex Sans"', 600, 24)
+  const labelMeasure = usePretextMeasure('exhibit', '400 12px "Martina Plantijn"', 300, 14)
+  const titleMeasure = usePretextMeasure('coming soon', 'italic 500 16px "Martina Plantijn"', 800, 70)
+  const subMeasure = usePretextMeasure('creative work & side projects', '400 14px "Martina Plantijn"', 600, 24)
 
   return (
     <div className="page placeholder animate-page-enter">

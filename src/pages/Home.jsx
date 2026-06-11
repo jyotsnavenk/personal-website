@@ -19,6 +19,18 @@ const PROJECTS = [
   { number: 7, title: 'Design for an e-commerce website',               description: 'I designed the full e-commerce experience, from navigation to content, for a French luxury bike brand entering the US market.', imageSrc: '/project-images/img-vanrysel.jpg' },
 ]
 
+// Maps each project card (by index) to its company block on the left.
+// companyDescriptions order is [Fulcrum, Hanomi, Decathlon].
+//   cards 0–3 → Fulcrum, cards 4–5 → Hanomi, card 6 → Decathlon
+const CARD_COMPANY = [0, 0, 0, 0, 1, 1, 2]
+
+// First card index for each company — clicking a company block scrolls to it.
+//   Fulcrum → card 0, Hanomi → card 4 (Desktop CAD), Decathlon → card 6 (Van Rysel)
+const COMPANY_FIRST_CARD = CARD_COMPANY.reduce((acc, company, card) => {
+  if (acc[company] === undefined) acc[company] = card
+  return acc
+}, [])
+
 function parseProjectContent(raw) {
   return raw.trim().split(/\n\n/).map((block) => {
     const [first, ...rest] = block.split('\n')
@@ -54,44 +66,112 @@ function HeroLine({ text, delay, lineHeight }) {
 function StickyProjects({ companyDescriptions }) {
   const outerRef = useRef(null)
   const cardsRef = useRef(null)
+  const textRef = useRef(null)
+  const sectionRef = useRef(null)
   const [outerHeight, setOuterHeight] = useState('auto')
 
   useEffect(() => {
     const outer = outerRef.current
     const cards = cardsRef.current
-    if (!outer || !cards) return
+    const text = textRef.current
+    const section = sectionRef.current
+    if (!outer || !cards || !section) return
 
     // SPEED > 1 lengthens the scroll runway so the cards travel slower than the
     // page scroll. EASE controls the trailing lag (lower = laggier/softer).
-    const SPEED = 1.5
-    const EASE = 0.09
+    const SPEED = 2.2
+    const EASE = 0.07
 
     let travel = 0   // how far the card column must move to show the last card
     let runway = 0   // scroll distance allotted for that travel (travel * SPEED)
     let target = 0   // resting position derived from scroll
     let current = 0  // eased position actually rendered
+    let stops = [0]      // translate values that center each card (dwell points)
+    let cardTargets = [] // per-card translate that lands that card on center
     let rafId = null
     let running = false
     let reduceMotion = false
 
     const measure = () => {
-      travel = Math.max(0, cards.scrollHeight - window.innerHeight)
+      // Build the dwell points: for each card, the translate amount that lands
+      // its center on the viewport center. The section pins to top:0, so we
+      // measure each card's center as an offset from the section top (which
+      // becomes the viewport top once pinned) — this is independent of where
+      // the section currently sits on the page (e.g. below the hero). The eased
+      // mapping below slows to a near-stop at each of these, so every project
+      // gets a beat in the center before the column moves on.
+      const prevTransform = cards.style.transform
+      cards.style.transform = 'translate3d(0, 0, 0)'
+      const viewportCenter = window.innerHeight / 2
+      const sectionTop = section.getBoundingClientRect().top
+      const centers = []
+      for (const card of cards.children) {
+        const r = card.getBoundingClientRect()
+        centers.push(Math.max(0, r.top - sectionTop + r.height / 2 - viewportCenter))
+      }
+      cards.style.transform = prevTransform
+
+      // Travel must reach far enough that even the LAST card lands on center —
+      // not merely become visible at the bottom — so each project can dwell.
+      const lastCenter = centers.length ? centers[centers.length - 1] : 0
+      travel = Math.max(0, cards.scrollHeight - window.innerHeight, lastCenter)
       runway = Math.round(travel * SPEED)
       setOuterHeight(runway > 0 ? `calc(100vh + ${runway}px)` : 'auto')
+
+      cardTargets = centers.map((c) => Math.min(travel, c))
+      const raw = [0, ...cardTargets]
+      raw.sort((a, b) => a - b)
+      stops = raw.filter((v, i) => i === 0 || v - raw[i - 1] > 1)
     }
 
+    // 6t^5 - 15t^4 + 10t^3 — eases in and out with zero velocity at both ends,
+    // so the column decelerates into each dwell point and accelerates out of it.
+    const smootherstep = (t) => t * t * t * (t * (t * 6 - 15) + 10)
+
     const computeTarget = () => {
-      if (runway <= 0) {
+      if (runway <= 0 || stops.length < 2) {
         target = 0
         return
       }
       const top = outer.getBoundingClientRect().top
       const progress = Math.min(1, Math.max(0, -top / runway))
-      target = progress * travel
+      // Spread the stops evenly across the runway, then ease between each pair.
+      const segments = stops.length - 1
+      const t = progress * segments
+      let k = Math.floor(t)
+      if (k >= segments) k = segments - 1
+      const frac = smootherstep(t - k)
+      target = stops[k] + (stops[k + 1] - stops[k]) * frac
+    }
+
+    let activeCompany = -1
+
+    // Highlight the company block whose card is closest to the viewport center.
+    const updateActive = () => {
+      if (!text) return
+      const viewportCenter = window.innerHeight / 2
+      let best = 0
+      let bestDist = Infinity
+      for (let i = 0; i < cards.children.length; i++) {
+        const r = cards.children[i].getBoundingClientRect()
+        const center = r.top + r.height / 2
+        const dist = Math.abs(center - viewportCenter)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = i
+        }
+      }
+      const company = CARD_COMPANY[best] ?? 0
+      if (company === activeCompany) return
+      activeCompany = company
+      for (let i = 0; i < text.children.length; i++) {
+        text.children[i].classList.toggle('is-active', i === company)
+      }
     }
 
     const render = () => {
       cards.style.transform = `translate3d(0, ${-current}px, 0)`
+      updateActive()
     }
 
     const tick = () => {
@@ -126,6 +206,48 @@ function StickyProjects({ companyDescriptions }) {
       onScroll()
     }
 
+    // Scroll the page so a given card lands on the viewport center. The card's
+    // dwell translate equals one of the stops, and the eased mapping hits each
+    // stop exactly at its segment boundary, so the matching progress is just
+    // stopIndex / segments. We convert that progress back into a page scrollY.
+    const scrollToCard = (cardIndex) => {
+      if (runway <= 0 || stops.length < 2) return
+      const targetTranslate = cardTargets[cardIndex]
+      if (targetTranslate === undefined) return
+      let stopIndex = 0
+      let bestDist = Infinity
+      stops.forEach((s, i) => {
+        const d = Math.abs(s - targetTranslate)
+        if (d < bestDist) {
+          bestDist = d
+          stopIndex = i
+        }
+      })
+      const progress = stopIndex / (stops.length - 1)
+      const outerTopDoc = outer.getBoundingClientRect().top + window.scrollY
+      const targetScrollY = Math.round(outerTopDoc + progress * runway)
+      window.scrollTo({ top: targetScrollY, behavior: reduceMotion ? 'auto' : 'smooth' })
+    }
+
+    const blockListeners = []
+    if (text) {
+      for (let i = 0; i < text.children.length; i++) {
+        const block = text.children[i]
+        const firstCard = COMPANY_FIRST_CARD[i]
+        if (firstCard === undefined) continue
+        const onClick = () => scrollToCard(firstCard)
+        const onKeyDown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            scrollToCard(firstCard)
+          }
+        }
+        block.addEventListener('click', onClick)
+        block.addEventListener('keydown', onKeyDown)
+        blockListeners.push({ block, onClick, onKeyDown })
+      }
+    }
+
     reduceMotion =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -141,6 +263,10 @@ function StickyProjects({ companyDescriptions }) {
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
+      blockListeners.forEach(({ block, onClick, onKeyDown }) => {
+        block.removeEventListener('click', onClick)
+        block.removeEventListener('keydown', onKeyDown)
+      })
       if (rafId) cancelAnimationFrame(rafId)
     }
   }, [])
@@ -152,13 +278,20 @@ function StickyProjects({ companyDescriptions }) {
       style={{ height: outerHeight }}
     >
       <section
+        ref={sectionRef}
         className="projects projects--sticky grid"
         aria-label="Portfolio projects"
       >
         <hr className="projects__divider" />
-        <div className="projects__text">
+        <div ref={textRef} className="projects__text">
           {companyDescriptions.map((entry) => (
-            <div key={entry.title} className="projects__company-block">
+            <div
+              key={entry.title}
+              className="projects__company-block"
+              role="button"
+              tabIndex={0}
+              aria-label={`Scroll to ${entry.title} projects`}
+            >
               <p className="projects__company-name">{entry.title}</p>
               <p className="projects__company-desc">{entry.body}</p>
             </div>

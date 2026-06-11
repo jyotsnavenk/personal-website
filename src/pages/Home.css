@@ -109,6 +109,12 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  cursor: pointer;
+}
+
+.projects__company-block:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
 }
 
 .projects__company-name {
@@ -116,7 +122,8 @@
   font-size: var(--text-body);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-normal);
-  color: var(--color-text-primary);
+  color: var(--color-text-muted);
+  transition: color 0.5s ease;
 }
 
 .projects__company-desc {
@@ -124,6 +131,12 @@
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   line-height: var(--leading-normal);
+  color: var(--color-text-muted);
+  transition: color 0.5s ease;
+}
+
+.projects__company-block.is-active .projects__company-name,
+.projects__company-block.is-active .projects__company-desc {
   color: var(--color-text-primary);
 }
 

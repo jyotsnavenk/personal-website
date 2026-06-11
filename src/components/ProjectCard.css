@@ -11,6 +11,15 @@
   transform: translateY(0);
 }
 
+/* Scroll-driven mode: opacity is set imperatively per frame by StickyProjects,
+   so no entrance transform/transition of its own. */
+.project-card--static {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  will-change: opacity;
+}
+
 .project-card__image-wrap {
   position: relative;
   aspect-ratio: 1080 / 650;

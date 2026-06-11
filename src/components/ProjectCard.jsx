@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import './ProjectCard.css'
 
-export default function ProjectCard({ number, company, title, description, imageSrc, index = 0 }) {
+export default function ProjectCard({ number, company, title, description, imageSrc, index = 0, disableReveal = false }) {
   const [visible, setVisible] = useState(false)
   const cardRef = useRef(null)
 
   useEffect(() => {
+    if (disableReveal) return
     const el = cardRef.current
     if (!el) return
     const observer = new IntersectionObserver(
@@ -19,12 +20,15 @@ export default function ProjectCard({ number, company, title, description, image
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [index])
+  }, [index, disableReveal])
 
   return (
     <article
       ref={cardRef}
-      className={['project-card', visible ? 'project-card--visible' : ''].join(' ')}
+      className={[
+        'project-card',
+        disableReveal ? 'project-card--static' : visible ? 'project-card--visible' : '',
+      ].join(' ')}
     >
       <div className="project-card__image-wrap">
         {imageSrc ? (

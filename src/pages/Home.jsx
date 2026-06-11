@@ -51,6 +51,134 @@ function HeroLine({ text, delay, lineHeight }) {
   )
 }
 
+function StickyProjects({ companyDescriptions }) {
+  const outerRef = useRef(null)
+  const cardsRef = useRef(null)
+  const [outerHeight, setOuterHeight] = useState('auto')
+
+  useEffect(() => {
+    const outer = outerRef.current
+    const cards = cardsRef.current
+    if (!outer || !cards) return
+
+    // SPEED > 1 lengthens the scroll runway so the cards travel slower than the
+    // page scroll. EASE controls the trailing lag (lower = laggier/softer).
+    const SPEED = 1.5
+    const EASE = 0.09
+
+    let travel = 0   // how far the card column must move to show the last card
+    let runway = 0   // scroll distance allotted for that travel (travel * SPEED)
+    let target = 0   // resting position derived from scroll
+    let current = 0  // eased position actually rendered
+    let rafId = null
+    let running = false
+    let reduceMotion = false
+
+    const measure = () => {
+      travel = Math.max(0, cards.scrollHeight - window.innerHeight)
+      runway = Math.round(travel * SPEED)
+      setOuterHeight(runway > 0 ? `calc(100vh + ${runway}px)` : 'auto')
+    }
+
+    const computeTarget = () => {
+      if (runway <= 0) {
+        target = 0
+        return
+      }
+      const top = outer.getBoundingClientRect().top
+      const progress = Math.min(1, Math.max(0, -top / runway))
+      target = progress * travel
+    }
+
+    const render = () => {
+      cards.style.transform = `translate3d(0, ${-current}px, 0)`
+    }
+
+    const tick = () => {
+      current += (target - current) * EASE
+      if (Math.abs(target - current) < 0.15) current = target
+      render()
+      if (Math.abs(target - current) > 0.15) {
+        rafId = requestAnimationFrame(tick)
+      } else {
+        running = false
+      }
+    }
+
+    const start = () => {
+      if (running) return
+      running = true
+      rafId = requestAnimationFrame(tick)
+    }
+
+    const onScroll = () => {
+      computeTarget()
+      if (reduceMotion) {
+        current = target
+        render()
+      } else {
+        start()
+      }
+    }
+
+    const onResize = () => {
+      measure()
+      onScroll()
+    }
+
+    reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    measure()
+    computeTarget()
+    current = target
+    render()
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={outerRef}
+      className="projects-outer"
+      style={{ height: outerHeight }}
+    >
+      <section
+        className="projects projects--sticky grid"
+        aria-label="Portfolio projects"
+      >
+        <hr className="projects__divider" />
+        <div className="projects__text">
+          {companyDescriptions.map((entry) => (
+            <div key={entry.title} className="projects__company-block">
+              <p className="projects__company-name">{entry.title}</p>
+              <p className="projects__company-desc">{entry.body}</p>
+            </div>
+          ))}
+        </div>
+        <div ref={cardsRef} className="projects__cards">
+          {PROJECTS.map((project, i) => (
+            <ProjectCard
+              key={project.number}
+              {...project}
+              index={i}
+              disableReveal
+            />
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export default function Home() {
   const [bodyRevealed, setBodyRevealed] = useState(false)
   const [heroWidth, setHeroWidth] = useState(1100)
@@ -107,26 +235,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="projects grid" aria-label="Portfolio projects">
-        <hr className="projects__divider" />
-        <div className="projects__text">
-          {companyDescriptions.map((entry) => (
-            <div key={entry.title} className="projects__company-block">
-              <p className="projects__company-name">{entry.title}</p>
-              <p className="projects__company-desc">{entry.body}</p>
-            </div>
-          ))}
-        </div>
-        <div className="projects__cards">
-          {PROJECTS.map((project, i) => (
-            <ProjectCard
-              key={project.number}
-              {...project}
-              index={i}
-            />
-          ))}
-        </div>
-      </section>
+      <StickyProjects companyDescriptions={companyDescriptions} />
 
       <Footer />
     </div>

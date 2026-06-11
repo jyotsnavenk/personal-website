@@ -116,7 +116,8 @@
   font-size: var(--text-body);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-normal);
-  color: var(--color-text-primary);
+  color: var(--color-text-muted);
+  transition: color 0.5s ease;
 }
 
 .projects__company-desc {
@@ -124,6 +125,12 @@
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   line-height: var(--leading-normal);
+  color: var(--color-text-muted);
+  transition: color 0.5s ease;
+}
+
+.projects__company-block.is-active .projects__company-name,
+.projects__company-block.is-active .projects__company-desc {
   color: var(--color-text-primary);
 }
 

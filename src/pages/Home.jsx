@@ -19,6 +19,11 @@ const PROJECTS = [
   { number: 7, title: 'Design for an e-commerce website',               description: 'I designed the full e-commerce experience, from navigation to content, for a French luxury bike brand entering the US market.', imageSrc: '/project-images/img-vanrysel.jpg' },
 ]
 
+// Maps each project card (by index) to its company block on the left.
+// companyDescriptions order is [Fulcrum, Hanomi, Decathlon].
+//   cards 0–3 → Fulcrum, cards 4–5 → Hanomi, card 6 → Decathlon
+const CARD_COMPANY = [0, 0, 0, 0, 1, 1, 2]
+
 function parseProjectContent(raw) {
   return raw.trim().split(/\n\n/).map((block) => {
     const [first, ...rest] = block.split('\n')
@@ -54,11 +59,13 @@ function HeroLine({ text, delay, lineHeight }) {
 function StickyProjects({ companyDescriptions }) {
   const outerRef = useRef(null)
   const cardsRef = useRef(null)
+  const textRef = useRef(null)
   const [outerHeight, setOuterHeight] = useState('auto')
 
   useEffect(() => {
     const outer = outerRef.current
     const cards = cardsRef.current
+    const text = textRef.current
     if (!outer || !cards) return
 
     // SPEED > 1 lengthens the scroll runway so the cards travel slower than the
@@ -90,8 +97,34 @@ function StickyProjects({ companyDescriptions }) {
       target = progress * travel
     }
 
+    let activeCompany = -1
+
+    // Highlight the company block whose card is closest to the viewport center.
+    const updateActive = () => {
+      if (!text) return
+      const viewportCenter = window.innerHeight / 2
+      let best = 0
+      let bestDist = Infinity
+      for (let i = 0; i < cards.children.length; i++) {
+        const r = cards.children[i].getBoundingClientRect()
+        const center = r.top + r.height / 2
+        const dist = Math.abs(center - viewportCenter)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = i
+        }
+      }
+      const company = CARD_COMPANY[best] ?? 0
+      if (company === activeCompany) return
+      activeCompany = company
+      for (let i = 0; i < text.children.length; i++) {
+        text.children[i].classList.toggle('is-active', i === company)
+      }
+    }
+
     const render = () => {
       cards.style.transform = `translate3d(0, ${-current}px, 0)`
+      updateActive()
     }
 
     const tick = () => {
@@ -156,7 +189,7 @@ function StickyProjects({ companyDescriptions }) {
         aria-label="Portfolio projects"
       >
         <hr className="projects__divider" />
-        <div className="projects__text">
+        <div ref={textRef} className="projects__text">
           {companyDescriptions.map((entry) => (
             <div key={entry.title} className="projects__company-block">
               <p className="projects__company-name">{entry.title}</p>

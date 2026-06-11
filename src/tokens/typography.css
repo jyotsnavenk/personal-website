@@ -126,7 +126,7 @@
 
   /* === GRID === */
   --grid-columns: 12;
-  --grid-padding: 44px;
+  --grid-padding: 24px;
   --grid-gap: 24px;
 }
 

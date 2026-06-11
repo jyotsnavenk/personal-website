@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { usePretextLines, usePretextMeasure } from '../hooks/usePretext'
 import ProjectCard from '../components/ProjectCard'
 import Footer from '../components/Footer'
+import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
 
 const HERO_LINES = ['design AND', 'creative technology']
@@ -9,14 +10,25 @@ const HERO_FONT = 'italic 700 80px "Playfair Display"'
 const BODY_TEXT = 'Jyotsna is a product designer based in SF. 2x founding designer who enjoys being a part of early-stage startups to build products from the ground up.'
 
 const PROJECTS = [
-  { number: 1, company: 'Fulcrum',   title: 'Loss Runs Analytics Dashboard',         description: 'End-to-end data visualisation for insurance brokerages — surfacing risk signals from raw loss run documents into actionable analytics.' },
-  { number: 2, company: 'Fulcrum',   title: 'Design Systems & Chat Components',       description: 'Built and maintained the full component library powering Fulcrum\'s agentic workflow UI, including a conversational interface system.' },
-  { number: 3, company: 'Fulcrum',   title: 'End-to-end Workflow Automation',         description: 'Designed the document editor and processing pipeline that lets brokers automate multi-step insurance workflows with AI.' },
-  { number: 4, company: 'Fulcrum',   title: 'User Dashboard',                         description: 'The primary command surface for Fulcrum — task management, status tracking, and workflow orchestration in a single view.' },
-  { number: 5, company: 'Hanomi',    title: 'Intelligence Layer Product Exploration', description: 'Zero-to-one product explorations for an AI layer built on top of CAD and mechanical engineering workflows.' },
-  { number: 6, company: 'Hanomi',    title: 'B2B Platform Design',                    description: 'Designed the core B2B product experience for mechanical engineers — onboarding, feature discovery, and collaboration flows.' },
-  { number: 7, company: 'Van Rysel', title: 'E-commerce Design',                      description: 'Full e-commerce design for a cycling brand — product pages, checkout flows, and mobile-first responsive layouts.' },
+  { number: 1, title: 'Analytics Dashboard, Prototype',                 description: 'Prototypes the loss runs analytics dashboard with Claude Code. Blank canvas to engineering handoff in a single day.', imageSrc: '/project-images/img-lossruns.jpg' },
+  { number: 2, title: 'Chat Assistant, Design Systems',                 description: 'I built the chat component system: consistent patterns and visual guidelines across every chat assistant workflow.', imageSrc: '/project-images/img-chat.jpg' },
+  { number: 3, title: 'Proposal Documents, End-to-end workflow automation', description: 'I designed a document editor covering the full flow from file ingestion to Word export. Shipped in under a week to close a major deal.', imageSrc: '/project-images/img-proposals.jpg' },
+  { number: 4, title: 'Accounts Control Center',                        description: 'I designed the account dashboard: a single hub for managing activity, documents, coverage, and kicking off workflows.', imageSrc: '/project-images/img-accounts.jpg' },
+  { number: 5, title: 'Desktop Intelligence Layer for Solidworks',      description: 'I led discovery and design for an intelligence layer that sits on top of CAD Softwares. Guided engineers through chat and analysis from 3D model to production-ready 2D drawings.', imageSrc: '/project-images/img-desktopcad.jpg' },
+  { number: 6, title: 'Web Platform Design',                            description: 'I designed the upload-to-download flow for a 3D CAD platform, and created brand assets for marketing events.', imageSrc: '/project-images/img-cadplatform.jpg' },
+  { number: 7, title: 'Design for an e-commerce website',               description: 'I designed the full e-commerce experience, from navigation to content, for a French luxury bike brand entering the US market.', imageSrc: '/project-images/img-vanrysel.jpg' },
 ]
+
+function parseProjectContent(raw) {
+  return raw.trim().split(/\n\n/).map((block) => {
+    const [first, ...rest] = block.split('\n')
+    const title = first.replace(/\*\*/g, '')
+    const body = rest.join(' ')
+    return { title, body }
+  })
+}
+
+const companyDescriptions = parseProjectContent(projectContentRaw)
 
 function HeroLine({ text, delay, lineHeight }) {
   const [revealed, setRevealed] = useState(false)
@@ -96,7 +108,16 @@ export default function Home() {
       </section>
 
       <section className="projects grid" aria-label="Portfolio projects">
-        <div className="projects__grid">
+        <hr className="projects__divider" />
+        <div className="projects__text">
+          {companyDescriptions.map((entry) => (
+            <div key={entry.title} className="projects__company-block">
+              <p className="projects__company-name">{entry.title}</p>
+              <p className="projects__company-desc">{entry.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="projects__cards">
           {PROJECTS.map((project, i) => (
             <ProjectCard
               key={project.number}

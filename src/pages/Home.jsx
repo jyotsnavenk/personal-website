@@ -24,6 +24,13 @@ const PROJECTS = [
 //   cards 0–3 → Fulcrum, cards 4–5 → Hanomi, card 6 → Decathlon
 const CARD_COMPANY = [0, 0, 0, 0, 1, 1, 2]
 
+// First card index for each company — clicking a company block scrolls to it.
+//   Fulcrum → card 0, Hanomi → card 4 (Desktop CAD), Decathlon → card 6 (Van Rysel)
+const COMPANY_FIRST_CARD = CARD_COMPANY.reduce((acc, company, card) => {
+  if (acc[company] === undefined) acc[company] = card
+  return acc
+}, [])
+
 function parseProjectContent(raw) {
   return raw.trim().split(/\n\n/).map((block) => {
     const [first, ...rest] = block.split('\n')
@@ -79,7 +86,8 @@ function StickyProjects({ companyDescriptions }) {
     let runway = 0   // scroll distance allotted for that travel (travel * SPEED)
     let target = 0   // resting position derived from scroll
     let current = 0  // eased position actually rendered
-    let stops = [0]  // translate values that center each card (dwell points)
+    let stops = [0]      // translate values that center each card (dwell points)
+    let cardTargets = [] // per-card translate that lands that card on center
     let rafId = null
     let running = false
     let reduceMotion = false
@@ -110,7 +118,8 @@ function StickyProjects({ companyDescriptions }) {
       runway = Math.round(travel * SPEED)
       setOuterHeight(runway > 0 ? `calc(100vh + ${runway}px)` : 'auto')
 
-      const raw = [0, ...centers.map((c) => Math.min(travel, c))]
+      cardTargets = centers.map((c) => Math.min(travel, c))
+      const raw = [0, ...cardTargets]
       raw.sort((a, b) => a - b)
       stops = raw.filter((v, i) => i === 0 || v - raw[i - 1] > 1)
     }
@@ -197,6 +206,48 @@ function StickyProjects({ companyDescriptions }) {
       onScroll()
     }
 
+    // Scroll the page so a given card lands on the viewport center. The card's
+    // dwell translate equals one of the stops, and the eased mapping hits each
+    // stop exactly at its segment boundary, so the matching progress is just
+    // stopIndex / segments. We convert that progress back into a page scrollY.
+    const scrollToCard = (cardIndex) => {
+      if (runway <= 0 || stops.length < 2) return
+      const targetTranslate = cardTargets[cardIndex]
+      if (targetTranslate === undefined) return
+      let stopIndex = 0
+      let bestDist = Infinity
+      stops.forEach((s, i) => {
+        const d = Math.abs(s - targetTranslate)
+        if (d < bestDist) {
+          bestDist = d
+          stopIndex = i
+        }
+      })
+      const progress = stopIndex / (stops.length - 1)
+      const outerTopDoc = outer.getBoundingClientRect().top + window.scrollY
+      const targetScrollY = Math.round(outerTopDoc + progress * runway)
+      window.scrollTo({ top: targetScrollY, behavior: reduceMotion ? 'auto' : 'smooth' })
+    }
+
+    const blockListeners = []
+    if (text) {
+      for (let i = 0; i < text.children.length; i++) {
+        const block = text.children[i]
+        const firstCard = COMPANY_FIRST_CARD[i]
+        if (firstCard === undefined) continue
+        const onClick = () => scrollToCard(firstCard)
+        const onKeyDown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            scrollToCard(firstCard)
+          }
+        }
+        block.addEventListener('click', onClick)
+        block.addEventListener('keydown', onKeyDown)
+        blockListeners.push({ block, onClick, onKeyDown })
+      }
+    }
+
     reduceMotion =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -212,6 +263,10 @@ function StickyProjects({ companyDescriptions }) {
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
+      blockListeners.forEach(({ block, onClick, onKeyDown }) => {
+        block.removeEventListener('click', onClick)
+        block.removeEventListener('keydown', onKeyDown)
+      })
       if (rafId) cancelAnimationFrame(rafId)
     }
   }, [])
@@ -230,7 +285,13 @@ function StickyProjects({ companyDescriptions }) {
         <hr className="projects__divider" />
         <div ref={textRef} className="projects__text">
           {companyDescriptions.map((entry) => (
-            <div key={entry.title} className="projects__company-block">
+            <div
+              key={entry.title}
+              className="projects__company-block"
+              role="button"
+              tabIndex={0}
+              aria-label={`Scroll to ${entry.title} projects`}
+            >
               <p className="projects__company-name">{entry.title}</p>
               <p className="projects__company-desc">{entry.body}</p>
             </div>

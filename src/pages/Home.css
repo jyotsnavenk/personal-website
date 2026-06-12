@@ -12,7 +12,7 @@
 }
 
 .hero__content {
-  grid-column: 3 / span 5;
+  grid-column: 2 / span 5;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -86,20 +86,15 @@
 
 /* === PROJECTS === */
 
-/* The whole section is sized to fit within a single viewport. The right grid
-   is height-driven (3 equal rows fill the available space), so the images
-   shrink to fit rather than pushing the section past 100vh. It is also the
+/* The section grows to fit its content (no viewport cap). It is also the
    positioning context for project popovers — position: relative anchors them
    and overflow: hidden keeps them from bleeding into other sections. */
 .projects {
   position: relative;
   overflow: hidden;
-  height: 100vh;
   box-sizing: border-box;
   padding-top: 24px;
   padding-bottom: 40px;
-  grid-template-rows: auto minmax(0, 1fr);
-  align-items: stretch;
 }
 
 .projects__divider {
@@ -108,38 +103,6 @@
   background-color: var(--color-text-muted);
   opacity: 0.3;
   margin-bottom: 24px;
-}
-
-/* Left column — heading, intro, and company blocks. Narrowed to span 4 so the
-   right grid gets more room for wider, shorter image tiles. */
-.projects__text {
-  grid-column: 1 / span 4;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-height: 0;
-}
-
-.projects__intro {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.projects__heading {
-  font-family: var(--font-family);
-  font-size: var(--text-body);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-normal);
-  color: var(--color-text-primary);
-}
-
-.projects__intro-body {
-  font-family: var(--font-family);
-  font-size: var(--text-body);
-  font-weight: var(--weight-regular);
-  line-height: var(--leading-normal);
-  color: var(--color-text-primary);
 }
 
 .projects__company-block {
@@ -164,15 +127,55 @@
   color: var(--color-text-muted);
 }
 
-/* Right column — responsive grid of project tiles. Tiles keep the source image
-   aspect ratio; at three columns the seven tiles fit within one viewport. */
+/* Right column — responsive grid of project tiles in two columns, spanning
+   from the end of the text column to the edge of the grid. */
 .projects__cards {
   grid-column: 5 / -1;
   min-height: 0;
   align-self: start;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+}
+
+/* Desktop layout (below the monitor breakpoint): company blocks and tiles live
+   in the same section grid so each block can sit on the same row as its first
+   project. There is no intro — the first company block starts at the top.
+   Placement comes from CSS custom properties set per element in Home.jsx, so
+   the mobile rules below can override it (inline styles could not). */
+.projects--aligned {
+  align-items: start;
+  row-gap: 16px;
+}
+
+.projects--aligned .projects__company-block--aligned {
+  grid-column: 2 / span 3;
+  grid-row: var(--block-row);
+  align-self: start;
+}
+
+/* The tile grid spans every project row of the section and borrows the section's
+   row tracks (subgrid), so each company block lines up with the row of its first
+   project. Its own two columns stay equal width no matter how many section
+   columns it spans (8 on desktop, 7 on monitor). */
+.projects--aligned .projects__cards {
+  grid-row: 1 / span 4;
+  grid-template-rows: subgrid;
+  align-self: stretch;
+  /* +20px on top of the 24px grid column-gap = a 44px gap to the text column. */
+  margin-left: 20px;
+}
+
+.projects--aligned .project-tile {
+  grid-column: var(--tile-col);
+  grid-row: var(--tile-row);
+}
+
+/* Desktop emphasis: the company name and its opening sentence are black; the
+   rest of the description stays light gray (the block's default color). */
+.projects--aligned .projects__company-name,
+.projects--aligned .projects__company-lead {
+  color: var(--color-text-primary);
 }
 
 /* === ABOUT === */
@@ -183,7 +186,7 @@
 }
 
 .about__divider {
-  grid-column: 3 / span 1;
+  grid-column: 2 / span 1;
   width: 24px;
   height: 1px;
   border: none;
@@ -192,13 +195,37 @@
 }
 
 .about__content {
-  grid-column: 3 / span 6;
+  grid-column: 2 / span 6;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+/* Monitor — content starts one column further in (column 3) and the projects
+   image grid loses the column it gains on desktop. */
 @media (min-width: 1600px) {
+  .hero__content {
+    grid-column: 3 / span 5;
+  }
+
+  .projects--aligned .projects__company-block--aligned {
+    grid-column: 3 / span 3;
+  }
+
+  .projects__cards {
+    grid-column: 6 / -1;
+  }
+
+  /* The 44px gutter already provides the gap to the text column, so drop the
+     desktop margin that compensated for the narrower 24px gutter. */
+  .projects--aligned .projects__cards {
+    margin-left: 0;
+  }
+
+  .about__divider {
+    grid-column: 3 / span 1;
+  }
+
   .about__content {
     grid-column: 3 / span 5;
   }
@@ -220,18 +247,8 @@
   color: var(--color-text-primary);
 }
 
-@media (max-width: 900px) {
-  .projects__text {
-    grid-column: 1 / span 5;
-  }
-
-  .projects__cards {
-    grid-column: 6 / -1;
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Mobile — stack the text above an auto-height grid (no 100vh constraint). */
+/* Mobile — company blocks stack full-width above a two-column tile grid. These
+   override the desktop placement set via custom properties on each element. */
 @media (max-width: 600px) {
   .hero {
     padding-top: 48px;
@@ -246,19 +263,15 @@
     grid-column: 1 / -1;
   }
 
-  .projects {
-    height: auto;
-    grid-template-rows: none;
+  .projects--aligned .projects__company-block--aligned {
+    grid-column: 1 / -1;
+    grid-row: auto;
   }
 
-  .projects__text {
+  .projects--aligned .projects__cards {
     grid-column: 1 / -1;
-    margin-bottom: 32px;
-  }
-
-  .projects__cards {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(2, 1fr);
+    grid-row: auto;
     grid-template-rows: none;
+    margin-left: 0;
   }
 }

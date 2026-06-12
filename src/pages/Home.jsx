@@ -6,19 +6,38 @@ import { getProjectImages } from '../data/projectImages'
 import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
 
-const INTRO = "I have spent my whole career being the only designer in the room. That experience has pushed me to prototype highly polished designs quickly, and pitch decisions to get product and engineering on the same page."
-
 // `folder` names a subfolder of /project-images — its imgN.jpg files become
-// the popover gallery for that project.
+// the popover gallery for that project. `company` ties the tile to a company
+// block so the desktop layout can align them on the same grid row.
 const PROJECTS = [
-  { number: 1, label: 'Analytics Dashboard',         imageSrc: '/project-images/img-lossruns.jpg',    folder: 'Loss Runs' },
-  { number: 2, label: 'Design Systems',              imageSrc: '/project-images/img-chat.jpg',        folder: 'Chat Assistant' },
-  { number: 3, label: 'Workflow automation',         imageSrc: '/project-images/img-proposals.jpg',   folder: 'Proposals' },
-  { number: 4, label: 'Accounts Control Center',     imageSrc: '/project-images/img-accounts.jpg',    folder: 'Accounts' },
-  { number: 5, label: 'Desktop Intelligence Layer',  imageSrc: '/project-images/img-desktopcad.jpg',  folder: 'Desktop Intelligence Layer' },
-  { number: 6, label: 'Web Platform Design',         imageSrc: '/project-images/img-cadplatform.jpg', folder: 'Hanomi Platform' },
-  { number: 7, label: 'E-commerce website',          imageSrc: '/project-images/img-vanrysel.jpg',    folder: 'Van Rysel' },
+  { number: 1, label: 'Analytics Dashboard',         imageSrc: '/project-images/img-lossruns.jpg',    folder: 'Loss Runs',                  company: 'Fulcrum' },
+  { number: 2, label: 'Design Systems',              imageSrc: '/project-images/img-chat.jpg',        folder: 'Chat Assistant',             company: 'Fulcrum' },
+  { number: 3, label: 'Workflow automation',         imageSrc: '/project-images/img-proposals.jpg',   folder: 'Proposals',                  company: 'Fulcrum' },
+  { number: 4, label: 'Accounts Control Center',     imageSrc: '/project-images/img-accounts.jpg',    folder: 'Accounts',                   company: 'Fulcrum' },
+  { number: 5, label: 'Desktop Intelligence Layer',  imageSrc: '/project-images/img-desktopcad.jpg',  folder: 'Desktop Intelligence Layer', company: 'Hanomi' },
+  { number: 6, label: 'Web Platform Design',         imageSrc: '/project-images/img-cadplatform.jpg', folder: 'Hanomi Platform',            company: 'Hanomi' },
+  { number: 7, label: 'E-commerce website',          imageSrc: '/project-images/img-vanrysel.jpg',    folder: 'Van Rysel',                  company: 'Decathlon' },
 ]
+
+// Tiles flow into a two-column grid, so a project's grid row is its index / 2.
+// The first project of each company fixes where that company's block aligns.
+const COMPANY_START_ROW = PROJECTS.reduce((acc, project, i) => {
+  if (!(project.company in acc)) acc[project.company] = Math.floor(i / 2) + 1
+  return acc
+}, {})
+
+// Tiles fill a nested two-column grid (left then right) that spans one section
+// row per pair, so column is 1 or 2 and row is the pair index.
+const tileColumn = (i) => (i % 2) + 1
+const tileRow = (i) => Math.floor(i / 2) + 1
+
+// Splits a company description into its opening sentence (shown black on
+// desktop) and the remainder (light gray). Falls back to the whole body if
+// there is no sentence break.
+const splitLead = (body) => {
+  const match = body.match(/^(.*?\.)\s+(.*)$/)
+  return match ? { lead: match[1], rest: match[2] } : { lead: body, rest: '' }
+}
 
 const IMAGE_RATIO = 1080 / 650
 const POPOVER_HEADER = 38 // px — header row height used to derive width
@@ -72,32 +91,37 @@ function ProjectsGrid({ companyDescriptions }) {
   const focusPopover = (id) =>
     setPopovers((ps) => ps.map((p) => (p.id === id ? { ...p, z: ++zRef.current } : p)))
 
-  return (
-    <section className="projects grid" aria-label="Portfolio projects">
-      <div className="projects__text">
-        <div className="projects__intro">
-          <p className="projects__heading">All Projects</p>
-          <p className="projects__intro-body">{INTRO}</p>
-        </div>
-        {companyDescriptions.map((entry) => (
-          <div key={entry.title} className="projects__company-block">
-            <p className="projects__company-name">{entry.title}</p>
-            <p className="projects__company-desc">{entry.body}</p>
-          </div>
-        ))}
-      </div>
+  const tiles = PROJECTS.map((project, i) => (
+    <ProjectTile
+      key={project.number}
+      label={project.label}
+      imageSrc={project.imageSrc}
+      isActive={popovers.some((p) => p.projectNumber === project.number)}
+      onClick={(e) => openPopover(project, e)}
+      style={{ '--tile-col': tileColumn(i), '--tile-row': tileRow(i) }}
+    />
+  ))
 
-      <div className="projects__cards">
-        {PROJECTS.map((project) => (
-          <ProjectTile
-            key={project.number}
-            label={project.label}
-            imageSrc={project.imageSrc}
-            isActive={popovers.some((p) => p.projectNumber === project.number)}
-            onClick={(e) => openPopover(project, e)}
-          />
-        ))}
-      </div>
+  return (
+    <section className="projects grid projects--aligned" aria-label="Portfolio projects">
+      {companyDescriptions.map((entry) => {
+        const { lead, rest } = splitLead(entry.body)
+        return (
+          <div
+            key={entry.title}
+            className="projects__company-block projects__company-block--aligned"
+            style={{ '--block-row': COMPANY_START_ROW[entry.title] }}
+          >
+            <p className="projects__company-name">{entry.title}</p>
+            <p className="projects__company-desc">
+              <span className="projects__company-lead">{lead}</span>
+              {rest && ` ${rest}`}
+            </p>
+          </div>
+        )
+      })}
+
+      <div className="projects__cards">{tiles}</div>
 
       {popovers.map((p) => (
         <ProjectPopover key={p.id} data={p} onClose={closePopover} onFocus={focusPopover} />

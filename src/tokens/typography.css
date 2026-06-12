@@ -107,5 +107,7 @@
     --text-caption: 13px;
     --text-body: 15px;
     --text-heading: 17px;
+    /* Monitor keeps the 44px page margin but widens the gutter to 44px. */
+    --grid-gap: 44px;
   }
 }

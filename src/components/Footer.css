@@ -10,7 +10,7 @@
 }
 
 .footer__meta {
-  grid-column: 3 / -1;
+  grid-column: 2 / -1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -72,6 +72,13 @@
   font-size: var(--text-caption);
   letter-spacing: var(--tracking-wide);
   color: inherit;
+}
+
+/* Monitor — align with the rest of the content starting at column 3. */
+@media (min-width: 1600px) {
+  .footer__meta {
+    grid-column: 3 / -1;
+  }
 }
 
 @media (max-width: 600px) {

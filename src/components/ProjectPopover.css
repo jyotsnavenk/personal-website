@@ -1,9 +1,8 @@
 /* macOS-style floating window with a frosted-glass body. Positioned within
-   (and clipped by) the projects section — it never overlaps other sections. */
+   (and clipped by) the projects section — it never overlaps other sections.
+   Resizing is handled by the custom corner grip (aspect-ratio locked). */
 .project-popover {
   position: absolute;
-  max-width: 100%;
-  max-height: 100%;
   display: flex;
   flex-direction: column;
   background: rgba(249, 248, 248, 0.7); /* #F9F8F8 @ 70% */
@@ -16,9 +15,6 @@
     0 24px 60px rgba(0, 0, 0, 0.22),
     0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  resize: both;
-  min-width: 320px;
-  min-height: 220px;
   animation: popoverIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: 100% 15%;
 }
@@ -118,6 +114,8 @@
   cursor: grabbing;
 }
 
+/* The image's bottom-right corner is chamfered to make room for the dotted
+   resize grip sitting in the notch. */
 .project-popover__image img {
   max-width: 100%;
   max-height: 100%;
@@ -127,19 +125,39 @@
   -webkit-user-drag: none;
   pointer-events: none;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 26px),
+    calc(100% - 26px) 100%,
+    0 100%
+  );
 }
 
-/* Resize grip glyph in the bottom-right corner (the native handle is
-   invisible on this background) — two clean diagonal strokes, macOS-style. */
-.project-popover::after {
-  content: '';
+/* === RESIZE GRIP — triangle of dots in the chamfered corner === */
+
+.project-popover__resize {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  width: 10px;
-  height: 10px;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><path d='M9 1L1 9M9 5.5L5.5 9' stroke='%23999999' stroke-width='1.2' stroke-linecap='round' fill='none'/></svg>");
-  background-repeat: no-repeat;
-  background-size: 10px 10px;
+  right: 6px;
+  bottom: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+.project-popover__resize svg {
+  display: block;
+}
+
+.project-popover__resize circle {
+  fill: rgba(0, 0, 0, 0.4);
+  transition: fill 0.2s ease;
+}
+
+.project-popover__resize:hover circle {
+  fill: rgba(0, 0, 0, 0.7);
 }

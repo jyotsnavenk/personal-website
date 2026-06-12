@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import './ProjectPopover.css'
 
 // A macOS-style floating window: glass header (drag handle, title with image
@@ -8,12 +8,37 @@ import './ProjectPopover.css'
 // absolutely positioned children of the section, and dragging is clamped to
 // the section bounds.
 const SWIPE_THRESHOLD = 60
+const FALLBACK_RATIO = 1080 / 650
+const MIN_IMAGE_WIDTH = 220
 
 export default function ProjectPopover({ data, onClose, onFocus }) {
-  const { id, title, images, w, h, z } = data
+  const { id, title, images, z } = data
   const [pos, setPos] = useState({ x: data.x, y: data.y })
+  const [size, setSize] = useState({ w: data.w, h: data.h })
   const [index, setIndex] = useState(0)
   const popRef = useRef(null)
+
+  // Chrome = everything around the image area (header + paddings). Measured
+  // live so resizing can hold the image area exactly at the image's ratio.
+  const measureChrome = () => {
+    const el = popRef.current
+    const imgArea = el.querySelector('.project-popover__image')
+    const imgEl = imgArea.querySelector('img')
+    return {
+      el,
+      chromeW: el.offsetWidth - imgArea.clientWidth,
+      chromeH: el.offsetHeight - imgArea.clientHeight,
+      ratio: imgEl?.naturalWidth ? imgEl.naturalWidth / imgEl.naturalHeight : FALLBACK_RATIO,
+    }
+  }
+
+  // Snap the initial height so the image area matches the image ratio exactly
+  // (the opener only estimates the header height).
+  useLayoutEffect(() => {
+    const { chromeW, chromeH, ratio } = measureChrome()
+    setSize((s) => ({ w: s.w, h: Math.round((s.w - chromeW) / ratio + chromeH) }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Dragging works from anywhere in the info container — except the close
   // button, which must stay a plain click. Movement is clamped so the window
@@ -46,6 +71,37 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
     window.addEventListener('pointerup', up)
   }
 
+  // Corner-grip resize, locked to the image aspect ratio and clamped to the
+  // section bounds.
+  const onResizeDown = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onFocus(id)
+    const { el, chromeW, chromeH, ratio } = measureChrome()
+    const bounds = el.offsetParent
+    const startX = e.clientX
+    const startImgW = el.offsetWidth - chromeW
+    const maxImgW = bounds
+      ? Math.min(
+          bounds.clientWidth - el.offsetLeft - chromeW,
+          (bounds.clientHeight - el.offsetTop - chromeH) * ratio
+        )
+      : Infinity
+    const move = (ev) => {
+      const imgW = Math.max(MIN_IMAGE_WIDTH, Math.min(startImgW + (ev.clientX - startX), maxImgW))
+      setSize({
+        w: Math.round(imgW + chromeW),
+        h: Math.round(imgW / ratio + chromeH),
+      })
+    }
+    const up = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
   const onImageDown = (e) => {
     if (images.length < 2) return
     e.preventDefault()
@@ -63,7 +119,7 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
     <div
       ref={popRef}
       className="project-popover"
-      style={{ left: pos.x, top: pos.y, width: w, height: h, zIndex: z }}
+      style={{ left: pos.x, top: pos.y, width: size.w, height: size.h, zIndex: z }}
       onPointerDown={() => onFocus(id)}
       role="dialog"
       aria-label={title}
@@ -93,6 +149,21 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
           alt={`${title} — image ${index + 1} of ${images.length}`}
           draggable={false}
         />
+      </div>
+      <div
+        className="project-popover__resize"
+        onPointerDown={onResizeDown}
+        role="button"
+        aria-label="Resize window"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="13" cy="5" r="1.3" />
+          <circle cx="9" cy="9" r="1.3" />
+          <circle cx="13" cy="9" r="1.3" />
+          <circle cx="5" cy="13" r="1.3" />
+          <circle cx="9" cy="13" r="1.3" />
+          <circle cx="13" cy="13" r="1.3" />
+        </svg>
       </div>
     </div>
   )

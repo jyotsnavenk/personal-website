@@ -86,10 +86,16 @@
 
 /* === PROJECTS === */
 
+/* The whole section is sized to fit within a single viewport. The right grid
+   is height-driven (3 equal rows fill the available space), so the images
+   shrink to fit rather than pushing the section past 100vh. */
 .projects {
-  padding-top: 0;
-  padding-bottom: 80px;
-  align-items: start;
+  height: 100vh;
+  box-sizing: border-box;
+  padding-top: 24px;
+  padding-bottom: 40px;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
 }
 
 .projects__divider {
@@ -97,15 +103,17 @@
   height: 1px;
   background-color: var(--color-text-muted);
   opacity: 0.3;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
-/* Left column — heading, intro, and company blocks */
+/* Left column — heading, intro, and company blocks. Narrowed to span 4 so the
+   right grid gets more room for wider, shorter image tiles. */
 .projects__text {
-  grid-column: 1 / span 5;
+  grid-column: 1 / span 4;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
+  min-height: 0;
 }
 
 .projects__intro {
@@ -133,7 +141,7 @@
 .projects__company-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .projects__company-name {
@@ -152,20 +160,29 @@
   color: var(--color-text-muted);
 }
 
-/* Right column — responsive grid of project tiles */
+/* Right column — responsive grid of project tiles. Tiles keep the source image
+   aspect ratio; at three columns the seven tiles fit within one viewport. */
 .projects__cards {
-  grid-column: 6 / -1;
+  grid-column: 5 / -1;
+  min-height: 0;
+  align-self: start;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--grid-gap);
+  gap: 16px;
 }
 
 @media (max-width: 900px) {
+  .projects__text {
+    grid-column: 1 / span 5;
+  }
+
   .projects__cards {
+    grid-column: 6 / -1;
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Mobile — stack the text above an auto-height grid (no 100vh constraint). */
 @media (max-width: 600px) {
   .hero {
     padding-top: 48px;
@@ -176,6 +193,11 @@
     grid-column: 1 / -1;
   }
 
+  .projects {
+    height: auto;
+    grid-template-rows: none;
+  }
+
   .projects__text {
     grid-column: 1 / -1;
     margin-bottom: 32px;
@@ -184,5 +206,6 @@
   .projects__cards {
     grid-column: 1 / -1;
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: none;
   }
 }

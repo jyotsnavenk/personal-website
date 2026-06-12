@@ -1,15 +1,17 @@
 .project-tile {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  min-height: 0;
 }
 
-/* === HEADER — status indicator dot + label, synth-button style === */
+/* === HEADER — status indicator dot + label === */
 
 .project-tile__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .project-tile__indicator {
@@ -17,6 +19,7 @@
   height: 5px;
   min-width: 5px;
   min-height: 5px;
+  margin-top: 0.5em;
   border-radius: 50%;
   background-color: var(--color-text-muted);
   flex-shrink: 0;
@@ -41,40 +44,36 @@
   }
 }
 
+/* Label wraps freely and is never clipped — full line-height so descenders
+   (y, g, p) and a possible second line have room; overflow stays visible. */
 .project-tile__label {
   font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   font-style: italic;
-  line-height: 1;
+  line-height: var(--leading-normal);
   color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 
-/* === IMAGE === */
+/* === IMAGE — flat container matching the source aspect ratio (1080×650),
+   so each screenshot fits neatly at its natural proportions, no cropping. === */
 
 .project-tile__image {
-  position: relative;
-  aspect-ratio: 4 / 3;
+  width: 100%;
+  aspect-ratio: 1080 / 650;
   overflow: hidden;
   background-color: var(--color-bg-surface);
 }
 
-.project-tile__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.project-tile:hover .project-tile__image img {
-  transform: scale(1.03);
-}
-
+.project-tile__image img,
 .project-tile__placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #e6e3fb 0%, #ddd9f7 100%);
+  object-fit: cover;
+  display: block;
+}
+
+.project-tile__placeholder {
+  background: linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg-surface) 100%);
 }

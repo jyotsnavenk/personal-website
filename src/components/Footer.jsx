@@ -11,10 +11,10 @@ const SOCIAL_LINKS = [
 ]
 
 const COLOPHON_ITEMS = [
-  { label: 'Type set in Martina Plantijn' },
-  { label: 'Hosted on Vercel',   href: 'https://vercel.com' },
-  { label: 'Source on GitHub',   href: 'https://github.com/jyotsnavenk' },
-  { label: 'Paired with Claude Code', href: 'https://claude.com/claude-code' },
+  'Type set in Martina Plantijn',
+  'Hosted on Vercel',
+  'Source on GitHub',
+  'Paired with Claude Code',
 ]
 
 function FooterLink({ label, href }) {
@@ -58,7 +58,7 @@ function Colophon() {
     <span className="footer__colophon" ref={ref}>
       <button
         type="button"
-        className="footer__colophon-trigger link-underline"
+        className="footer__colophon-trigger"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
@@ -67,21 +67,8 @@ function Colophon() {
       {open && (
         <div className="footer__colophon-popover" role="dialog" aria-label="Colophon">
           <ul className="footer__colophon-list">
-            {COLOPHON_ITEMS.map(({ label, href }) => (
-              <li key={label}>
-                {href ? (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-underline"
-                  >
-                    {label}
-                  </a>
-                ) : (
-                  label
-                )}
-              </li>
+            {COLOPHON_ITEMS.map((label) => (
+              <li key={label}>{label}</li>
             ))}
           </ul>
         </div>

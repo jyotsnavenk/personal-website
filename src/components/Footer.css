@@ -6,6 +6,7 @@
   padding: 24px var(--grid-padding);
   margin-top: auto;
   align-items: center;
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .footer__links {
@@ -19,13 +20,13 @@
 .footer__link {
   font-family: var(--font-family);
   font-size: var(--text-caption);
-  color: var(--color-text-secondary);
+  color: inherit;
   letter-spacing: var(--tracking-wide);
   transition: color 0.15s ease;
 }
 
 .footer__link:hover {
-  color: var(--color-text-primary);
+  color: rgba(0, 0, 0, 1);
 }
 
 .footer__meta {
@@ -36,12 +37,12 @@
   flex-wrap: wrap;
   font-family: var(--font-family);
   font-size: var(--text-caption);
-  color: var(--color-text-muted);
+  color: inherit;
   letter-spacing: var(--tracking-wide);
 }
 
 .footer__meta-dot {
-  color: var(--color-text-muted);
+  color: inherit;
   user-select: none;
 }
 
@@ -54,11 +55,18 @@
   font-family: var(--font-family);
   font-size: var(--text-caption);
   letter-spacing: var(--tracking-wide);
-  color: var(--color-text-secondary);
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.footer__colophon-trigger:hover {
+  color: rgba(0, 0, 0, 1);
 }
 
 .footer__colophon-popover {
@@ -83,7 +91,7 @@
   font-family: var(--font-family);
   font-size: var(--text-caption);
   letter-spacing: var(--tracking-wide);
-  color: var(--color-text-secondary);
+  color: inherit;
 }
 
 @media (max-width: 600px) {

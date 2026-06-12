@@ -2,9 +2,23 @@ import './ProjectTile.css'
 
 // A single project tile: a synth-style header (status indicator dot + label)
 // sitting above the project image. The indicator activates on hover.
-export default function ProjectTile({ label, imageSrc, alt }) {
+export default function ProjectTile({ label, imageSrc, alt, onClick }) {
+  const onKeyDown = (e) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick(e)
+    }
+  }
+
   return (
-    <article className="project-tile">
+    <article
+      className="project-tile"
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${label}`}
+    >
       <div className="project-tile__header">
         <span className="project-tile__indicator" aria-hidden="true" />
         <span className="project-tile__label">{label}</span>

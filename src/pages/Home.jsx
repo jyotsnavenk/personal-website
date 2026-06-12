@@ -1,20 +1,28 @@
 import { useLayoutEffect, useState, useRef } from 'react'
 import ProjectTile from '../components/ProjectTile'
+import ProjectPopover from '../components/ProjectPopover'
 import Footer from '../components/Footer'
+import { getProjectImages } from '../data/projectImages'
 import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
 
 const INTRO = "I have spent my whole career being the only designer in the room. That experience has pushed me to prototype highly polished designs quickly, and pitch decisions to get product and engineering on the same page."
 
+// `folder` names a subfolder of /project-images — its imgN.jpg files become
+// the popover gallery for that project.
 const PROJECTS = [
-  { number: 1, label: 'Analytics Dashboard',         imageSrc: '/project-images/img-lossruns.jpg' },
-  { number: 2, label: 'Design Systems',              imageSrc: '/project-images/img-chat.jpg' },
-  { number: 3, label: 'Workflow automation',         imageSrc: '/project-images/img-proposals.jpg' },
-  { number: 4, label: 'Accounts Control Center',     imageSrc: '/project-images/img-accounts.jpg' },
-  { number: 5, label: 'Desktop Intelligence Layer',  imageSrc: '/project-images/img-desktopcad.jpg' },
-  { number: 6, label: 'Web Platform Design',         imageSrc: '/project-images/img-cadplatform.jpg' },
-  { number: 7, label: 'E-commerce website',          imageSrc: '/project-images/img-vanrysel.jpg' },
+  { number: 1, label: 'Analytics Dashboard',         imageSrc: '/project-images/img-lossruns.jpg',    folder: 'Loss Runs' },
+  { number: 2, label: 'Design Systems',              imageSrc: '/project-images/img-chat.jpg',        folder: 'Chat Assistant' },
+  { number: 3, label: 'Workflow automation',         imageSrc: '/project-images/img-proposals.jpg',   folder: 'Proposals' },
+  { number: 4, label: 'Accounts Control Center',     imageSrc: '/project-images/img-accounts.jpg',    folder: 'Accounts' },
+  { number: 5, label: 'Desktop Intelligence Layer',  imageSrc: '/project-images/img-desktopcad.jpg',  folder: 'Desktop Intelligence Layer' },
+  { number: 6, label: 'Web Platform Design',         imageSrc: '/project-images/img-cadplatform.jpg', folder: 'Hanomi Platform' },
+  { number: 7, label: 'E-commerce website',          imageSrc: '/project-images/img-vanrysel.jpg',    folder: 'Van Rysel' },
 ]
+
+const IMAGE_RATIO = 1080 / 650
+const POPOVER_HEADER = 38 // px — header row height used to derive width
+const POPOVER_PAD = 24    // px — margins around the image area
 
 function parseProjectContent(raw) {
   return raw.trim().split(/\n\n/).map((block) => {
@@ -28,6 +36,35 @@ function parseProjectContent(raw) {
 const companyDescriptions = parseProjectContent(projectContentRaw)
 
 function ProjectsGrid({ companyDescriptions }) {
+  const [popovers, setPopovers] = useState([])
+  const zRef = useRef(20)
+  const idRef = useRef(0)
+
+  // Opens a popover to the left of the clicked tile, sized to 55vh with the
+  // width derived from the image aspect ratio. Repeat opens cascade like
+  // stacked macOS windows.
+  const openPopover = (project, e) => {
+    const tile = e.currentTarget.getBoundingClientRect()
+    const h = Math.round(window.innerHeight * 0.55)
+    const w = Math.round((h - POPOVER_HEADER - POPOVER_PAD) * IMAGE_RATIO + POPOVER_PAD)
+    const cascade = (popovers.length % 5) * 24
+    const x = Math.max(12, tile.left - w - 20) + cascade
+    const y = Math.min(Math.max(12, tile.top + cascade), Math.max(12, window.innerHeight - h - 12))
+    const images = getProjectImages(project.folder)
+    idRef.current += 1
+    setPopovers((ps) => [...ps, {
+      id: idRef.current,
+      title: project.label,
+      images: images.length ? images : [project.imageSrc],
+      x, y, w, h,
+      z: ++zRef.current,
+    }])
+  }
+
+  const closePopover = (id) => setPopovers((ps) => ps.filter((p) => p.id !== id))
+  const focusPopover = (id) =>
+    setPopovers((ps) => ps.map((p) => (p.id === id ? { ...p, z: ++zRef.current } : p)))
+
   return (
     <section className="projects grid" aria-label="Portfolio projects">
       <hr className="projects__divider" />
@@ -51,9 +88,14 @@ function ProjectsGrid({ companyDescriptions }) {
             key={project.number}
             label={project.label}
             imageSrc={project.imageSrc}
+            onClick={(e) => openPopover(project, e)}
           />
         ))}
       </div>
+
+      {popovers.map((p) => (
+        <ProjectPopover key={p.id} data={p} onClose={closePopover} onFocus={focusPopover} />
+      ))}
     </section>
   )
 }

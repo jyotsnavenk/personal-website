@@ -3,6 +3,12 @@
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  cursor: pointer;
+}
+
+.project-tile:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
 }
 
 /* === HEADER — status indicator dot + label === */

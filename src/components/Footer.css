@@ -2,53 +2,80 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   column-gap: var(--grid-gap);
+  row-gap: 24px;
   padding: 24px var(--grid-padding);
-  border-top: 1px solid var(--color-border-subtle);
   margin-top: auto;
   align-items: center;
+  color: rgba(0, 0, 0, 0.5);
 }
 
-.footer__tagline {
-  grid-column: 1 / span 4;
-  font-family: var(--font-family);
-  font-size: var(--text-caption);
-  color: var(--color-text-muted);
-  letter-spacing: var(--tracking-wide);
-  font-style: italic;
-}
-
-.footer__links {
-  grid-column: 9 / span 4;
+.footer__meta {
+  grid-column: 1 / -1;
   display: flex;
-  gap: 20px;
   align-items: center;
-  justify-content: flex-end;
-}
-
-.footer__link {
+  gap: 8px;
+  flex-wrap: wrap;
   font-family: var(--font-family);
   font-size: var(--text-caption);
-  color: var(--color-text-secondary);
+  color: inherit;
   letter-spacing: var(--tracking-wide);
+}
+
+.footer__meta-dot {
+  color: inherit;
+  user-select: none;
+}
+
+.footer__colophon {
+  position: relative;
+  display: inline-flex;
+}
+
+.footer__colophon-trigger {
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-wide);
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   transition: color 0.15s ease;
 }
 
-.footer__link:hover {
-  color: var(--color-text-primary);
+.footer__colophon-trigger:hover {
+  color: rgba(0, 0, 0, 1);
+}
+
+.footer__colophon-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  z-index: 10;
+  min-width: 220px;
+  padding: 16px;
+  background: var(--color-text-inverse);
+  border: 1px solid var(--color-border-active);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.footer__colophon-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-wide);
+  color: inherit;
 }
 
 @media (max-width: 600px) {
   .footer {
     padding: 20px var(--grid-padding);
-  }
-
-  .footer__tagline {
-    grid-column: 1 / span 6;
-  }
-
-  .footer__links {
-    grid-column: 7 / -1;
-    flex-wrap: wrap;
-    gap: 12px;
   }
 }

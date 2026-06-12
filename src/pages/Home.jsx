@@ -74,8 +74,6 @@ function ProjectsGrid({ companyDescriptions }) {
 
   return (
     <section className="projects grid" aria-label="Portfolio projects">
-      <hr className="projects__divider" />
-
       <div className="projects__text">
         <div className="projects__intro">
           <p className="projects__heading">All Projects</p>
@@ -206,7 +204,7 @@ export default function Home() {
       <section className="about grid" aria-label="About me">
         <hr className="about__divider" />
         <div className="about__content">
-          <p className="about__mark" aria-hidden="true">(&rdquo;)</p>
+          <p className="about__mark" aria-hidden="true">(&ldquo;)</p>
           <p className="about__body">Welcome to my little corner of the internet. My name is Jyotsna, I'm a San Francisco based designer. I am currently exploring the vast expanse of creative computation and this website is my small, growing playground of projects. Having recently returned from a sabbatical, I have a renewed sense of commitment to always follow my creative pursuits; making short films, shooting photos on film, and writing essays. <em>Expose yourself to much of the world and see what emerges.</em></p>
         </div>
       </section>

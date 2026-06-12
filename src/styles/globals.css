@@ -9,8 +9,8 @@
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: #fff;
+  background: transparent;
+  color: var(--color-accent);
 }
 
 html {

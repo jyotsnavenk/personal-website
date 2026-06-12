@@ -9,31 +9,11 @@
   color: rgba(0, 0, 0, 0.5);
 }
 
-.footer__links {
-  grid-column: 9 / span 4;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.footer__link {
-  font-family: var(--font-family);
-  font-size: var(--text-caption);
-  color: inherit;
-  letter-spacing: var(--tracking-wide);
-  transition: color 0.15s ease;
-}
-
-.footer__link:hover {
-  color: rgba(0, 0, 0, 1);
-}
-
 .footer__meta {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   flex-wrap: wrap;
   font-family: var(--font-family);
   font-size: var(--text-caption);
@@ -97,11 +77,5 @@
 @media (max-width: 600px) {
   .footer {
     padding: 20px var(--grid-padding);
-  }
-
-  .footer__links {
-    grid-column: 7 / -1;
-    flex-wrap: wrap;
-    gap: 12px;
   }
 }

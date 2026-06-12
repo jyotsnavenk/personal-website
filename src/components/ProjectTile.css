@@ -1,0 +1,80 @@
+.project-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* === HEADER — status indicator dot + label, synth-button style === */
+
+.project-tile__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.project-tile__indicator {
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  min-height: 5px;
+  border-radius: 50%;
+  background-color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.project-tile:hover .project-tile__indicator {
+  background-color: var(--color-accent);
+  animation: tilePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tilePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 3px var(--color-accent-glow);
+  }
+  50% {
+    transform: scale(1.4);
+    box-shadow: 0 0 8px var(--color-accent-glow);
+  }
+}
+
+.project-tile__label {
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  font-style: italic;
+  line-height: 1;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* === IMAGE === */
+
+.project-tile__image {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: var(--color-bg-surface);
+}
+
+.project-tile__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-tile:hover .project-tile__image img {
+  transform: scale(1.03);
+}
+
+.project-tile__placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e6e3fb 0%, #ddd9f7 100%);
+}

@@ -10,7 +10,7 @@
 }
 
 .footer__meta {
-  grid-column: 1 / -1;
+  grid-column: 3 / -1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -77,5 +77,9 @@
 @media (max-width: 600px) {
   .footer {
     padding: 20px var(--grid-padding);
+  }
+
+  .footer__meta {
+    grid-column: 1 / -1;
   }
 }

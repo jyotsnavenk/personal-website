@@ -7,7 +7,7 @@
   /* === TEXT === */
   --color-text-primary: #000000;
   --color-text-secondary: #1E1E1E;
-  --color-text-muted: #B8B8B8;
+  --color-text-muted: rgba(0, 0, 0, 0.5);
   --color-text-inverse: #FFFFFF;
   /* === ACCENT — change this to repaint the whole site === */
   --color-accent: #1099E3;

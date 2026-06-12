@@ -34,7 +34,9 @@
   backface-visibility: hidden;
 }
 
-.project-tile:hover .project-tile__indicator {
+/* The indicator is on (blue, pulsing) while a popover for this project is
+   open — not on hover. */
+.project-tile--active .project-tile__indicator {
   background-color: var(--color-accent);
   animation: tilePulse 1.5s ease-in-out infinite;
 }

@@ -1,8 +1,9 @@
 import './ProjectTile.css'
 
 // A single project tile: a synth-style header (status indicator dot + label)
-// sitting above the project image. The indicator activates on hover.
-export default function ProjectTile({ label, imageSrc, alt, onClick }) {
+// sitting above the project image. Clicking opens the project's popover;
+// the indicator lights up while a popover for this project is open.
+export default function ProjectTile({ label, imageSrc, alt, isActive = false, onClick }) {
   const onKeyDown = (e) => {
     if (onClick && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault()
@@ -12,7 +13,7 @@ export default function ProjectTile({ label, imageSrc, alt, onClick }) {
 
   return (
     <article
-      className="project-tile"
+      className={['project-tile', isActive ? 'project-tile--active' : ''].filter(Boolean).join(' ')}
       onClick={onClick}
       onKeyDown={onKeyDown}
       role="button"

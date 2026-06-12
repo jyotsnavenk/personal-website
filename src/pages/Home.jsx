@@ -60,6 +60,7 @@ function ProjectsGrid({ companyDescriptions }) {
     idRef.current += 1
     setPopovers((ps) => [...ps, {
       id: idRef.current,
+      projectNumber: project.number,
       title: project.label,
       images: images.length ? images : [project.imageSrc],
       x, y, w, h,
@@ -94,6 +95,7 @@ function ProjectsGrid({ companyDescriptions }) {
             key={project.number}
             label={project.label}
             imageSrc={project.imageSrc}
+            isActive={popovers.some((p) => p.projectNumber === project.number)}
             onClick={(e) => openPopover(project, e)}
           />
         ))}

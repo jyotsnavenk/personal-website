@@ -13,6 +13,13 @@ const SENTENCES = [
   'making cool shit',
   'engineer at heart',
   'let’s build together',
+  'design with sound',
+  'curious by default',
+  'prototype everything',
+  'taste plus velocity',
+  'craft is my compass',
+  'small teams big bets',
+  'san francisco based',
 ]
 
 // A-major pentatonic across two octaves — no wrong notes, so strumming the

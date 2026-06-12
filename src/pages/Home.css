@@ -88,8 +88,12 @@
 
 /* The whole section is sized to fit within a single viewport. The right grid
    is height-driven (3 equal rows fill the available space), so the images
-   shrink to fit rather than pushing the section past 100vh. */
+   shrink to fit rather than pushing the section past 100vh. It is also the
+   positioning context for project popovers — position: relative anchors them
+   and overflow: hidden keeps them from bleeding into other sections. */
 .projects {
+  position: relative;
+  overflow: hidden;
   height: 100vh;
   box-sizing: border-box;
   padding-top: 24px;

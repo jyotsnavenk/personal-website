@@ -42,14 +42,20 @@ function ProjectsGrid({ companyDescriptions }) {
 
   // Opens a popover to the left of the clicked tile, sized to 55vh with the
   // width derived from the image aspect ratio. Repeat opens cascade like
-  // stacked macOS windows.
+  // stacked macOS windows. Coordinates are relative to the projects section —
+  // popovers live inside it and never bleed into other sections.
   const openPopover = (project, e) => {
+    const section = e.currentTarget.closest('.projects')
+    const sec = section.getBoundingClientRect()
     const tile = e.currentTarget.getBoundingClientRect()
     const h = Math.round(window.innerHeight * 0.55)
     const w = Math.round((h - POPOVER_HEADER - POPOVER_PAD) * IMAGE_RATIO + POPOVER_PAD)
     const cascade = (popovers.length % 5) * 24
-    const x = Math.max(12, tile.left - w - 20) + cascade
-    const y = Math.min(Math.max(12, tile.top + cascade), Math.max(12, window.innerHeight - h - 12))
+    const x = Math.max(12, tile.left - sec.left - w - 20) + cascade
+    const y = Math.min(
+      Math.max(12, tile.top - sec.top + cascade),
+      Math.max(12, sec.height - h - 12)
+    )
     const images = getProjectImages(project.folder)
     idRef.current += 1
     setPopovers((ps) => [...ps, {

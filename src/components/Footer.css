@@ -8,15 +8,6 @@
   align-items: center;
 }
 
-.footer__tagline {
-  grid-column: 1 / span 4;
-  font-family: var(--font-family);
-  font-size: var(--text-caption);
-  color: var(--color-text-muted);
-  letter-spacing: var(--tracking-wide);
-  font-style: italic;
-}
-
 .footer__links {
   grid-column: 9 / span 4;
   display: flex;
@@ -98,10 +89,6 @@
 @media (max-width: 600px) {
   .footer {
     padding: 20px var(--grid-padding);
-  }
-
-  .footer__tagline {
-    grid-column: 1 / span 6;
   }
 
   .footer__links {

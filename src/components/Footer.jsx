@@ -91,17 +91,10 @@ function Colophon() {
 }
 
 export default function Footer() {
-  const taglineMeasure = usePretextMeasure('happily tinkering', 'italic 400 12px "Martina Plantijn"', 300, 14)
   const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' })
 
   return (
     <footer className="footer">
-      <span
-        className="footer__tagline"
-        style={taglineMeasure.ready ? { minHeight: taglineMeasure.height } : undefined}
-      >
-        happily tinkering
-      </span>
       <nav className="footer__links" aria-label="Social links">
         {SOCIAL_LINKS.map(({ label, href }) => (
           <FooterLink key={label} label={label} href={href} />

@@ -10,13 +10,19 @@ import './ProjectPopover.css'
 const SWIPE_THRESHOLD = 60
 const FALLBACK_RATIO = 1080 / 650
 const MIN_IMAGE_WIDTH = 220
+const SLIDE_MS = 240
 
 export default function ProjectPopover({ data, onClose, onFocus }) {
   const { id, title, images, z } = data
   const [pos, setPos] = useState({ x: data.x, y: data.y })
   const [size, setSize] = useState({ w: data.w, h: data.h })
   const [index, setIndex] = useState(0)
+  // Filmstrip offset in px; `animating` switches the CSS transition on for
+  // snaps and commits, off for live pointer tracking.
+  const [strip, setStrip] = useState({ dx: 0, animating: false })
   const popRef = useRef(null)
+  const imageRef = useRef(null)
+  const lockRef = useRef(false) // ignores input while a slide commit animates
 
   // Chrome = everything around the image area (header + paddings). Measured
   // live so resizing can hold the image area exactly at the image's ratio.
@@ -102,16 +108,69 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
     window.addEventListener('pointerup', up)
   }
 
-  const onImageDown = (e) => {
-    if (images.length < 2) return
-    e.preventDefault()
-    const startX = e.clientX
-    const up = (ev) => {
-      const dx = ev.clientX - startX
-      if (dx <= -SWIPE_THRESHOLD) setIndex((i) => Math.min(images.length - 1, i + 1))
-      else if (dx >= SWIPE_THRESHOLD) setIndex((i) => Math.max(0, i - 1))
-      window.removeEventListener('pointerup', up)
+  // Slides the strip one image over (animated), then commits the new index
+  // and resets the strip offset — the swap is invisible because the incoming
+  // slide lands exactly where the current one renders at rest. Commit fires
+  // on transitionend, with a timer fallback for robustness.
+  const slideTo = (target) => {
+    const el = imageRef.current
+    const stripEl = el?.querySelector('.project-popover__strip')
+    if (!el || !stripEl || target < 0 || target > images.length - 1) return
+    const dir = target > index ? -1 : 1
+    lockRef.current = true
+    let done = false
+    let fallback
+    const commit = () => {
+      if (done) return
+      done = true
+      stripEl.removeEventListener('transitionend', commit)
+      window.clearTimeout(fallback)
+      setIndex(target)
+      setStrip({ dx: 0, animating: false })
+      lockRef.current = false
     }
+    stripEl.addEventListener('transitionend', commit)
+    fallback = window.setTimeout(commit, SLIDE_MS + 160)
+    setStrip({ dx: dir * el.clientWidth, animating: true })
+  }
+
+  // Pointer interactions on the image container:
+  // - plain click: right half → next image, left half → previous
+  // - drag: the strip tracks the pointer 1:1 (current image moves out while
+  //   the neighbor moves in); past the threshold it commits, else snaps back.
+  const onImageDown = (e) => {
+    if (images.length < 2 || lockRef.current) return
+    e.preventDefault()
+    const el = imageRef.current
+    const hasPrev = index > 0
+    const hasNext = index < images.length - 1
+    const startX = e.clientX
+    let moved = false
+    const move = (ev) => {
+      let dx = ev.clientX - startX
+      if (Math.abs(dx) > 3) moved = true
+      // Rubber-band when dragging toward a neighbor that doesn't exist.
+      if ((dx < 0 && !hasNext) || (dx > 0 && !hasPrev)) dx *= 0.25
+      setStrip({ dx, animating: false })
+    }
+    const up = (ev) => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      const dx = ev.clientX - startX
+      if (!moved) {
+        const rect = el.getBoundingClientRect()
+        if (ev.clientX > rect.left + rect.width / 2) {
+          if (hasNext) slideTo(index + 1)
+        } else if (hasPrev) {
+          slideTo(index - 1)
+        }
+        return
+      }
+      if (dx <= -SWIPE_THRESHOLD && hasNext) slideTo(index + 1)
+      else if (dx >= SWIPE_THRESHOLD && hasPrev) slideTo(index - 1)
+      else setStrip({ dx: 0, animating: true })
+    }
+    window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
   }
 
@@ -143,12 +202,46 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
           [CLOSE]
         </button>
       </div>
-      <div className="project-popover__image" onPointerDown={onImageDown}>
-        <img
-          src={images[index]}
-          alt={`${title} — image ${index + 1} of ${images.length}`}
-          draggable={false}
-        />
+      <div
+        ref={imageRef}
+        className={[
+          'project-popover__image',
+          images.length < 2 ? 'project-popover__image--static' : '',
+        ].filter(Boolean).join(' ')}
+        onPointerDown={onImageDown}
+      >
+        <div
+          className={[
+            'project-popover__strip',
+            strip.animating ? 'project-popover__strip--animating' : '',
+          ].filter(Boolean).join(' ')}
+          style={{ transform: `translateX(${strip.dx}px)` }}
+        >
+          {index > 0 && (
+            <img
+              className="project-popover__slide project-popover__slide--prev"
+              src={images[index - 1]}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          )}
+          <img
+            className="project-popover__slide"
+            src={images[index]}
+            alt={`${title} — image ${index + 1} of ${images.length}`}
+            draggable={false}
+          />
+          {index < images.length - 1 && (
+            <img
+              className="project-popover__slide project-popover__slide--next"
+              src={images[index + 1]}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          )}
+        </div>
       </div>
       <div
         className="project-popover__resize"

@@ -12,7 +12,10 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
   const [pos, setPos] = useState({ x: data.x, y: data.y })
   const [index, setIndex] = useState(0)
 
+  // Dragging works from anywhere in the info container — except the close
+  // button, which must stay a plain click.
   const onHandleDown = (e) => {
+    if (e.target.closest('.project-popover__close')) return
     e.preventDefault()
     onFocus(id)
     let lastX = e.clientX
@@ -53,10 +56,9 @@ export default function ProjectPopover({ data, onClose, onFocus }) {
       role="dialog"
       aria-label={title}
     >
-      <div className="project-popover__header">
+      <div className="project-popover__header" onPointerDown={onHandleDown}>
         <button
           className="project-popover__drag"
-          onPointerDown={onHandleDown}
           aria-label="Move window"
           type="button"
         >

@@ -6,8 +6,9 @@
   background: rgba(249, 248, 248, 0.7); /* #F9F8F8 @ 70% */
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
   backdrop-filter: blur(24px) saturate(1.4);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid #d9d9d9;
   border-radius: 10px;
+  padding: 8px;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.22),
     0 4px 12px rgba(0, 0, 0, 0.1);
@@ -32,14 +33,20 @@
 
 /* === INFO CONTAINER — drag handle, title + image indicator, close === */
 
+/* The whole info container is a drag surface (except the close button). */
 .project-popover__header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 2px 4px 8px;
   flex-shrink: 0;
   user-select: none;
+  cursor: grab;
+  touch-action: none;
+}
+
+.project-popover__header:active {
+  cursor: grabbing;
 }
 
 .project-popover__drag {
@@ -97,7 +104,6 @@
 .project-popover__image {
   flex: 1;
   min-height: 0;
-  margin: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,21 +127,16 @@
 }
 
 /* Resize grip glyph in the bottom-right corner (the native handle is
-   invisible on this background). */
+   invisible on this background) — two clean diagonal strokes, macOS-style. */
 .project-popover::after {
   content: '';
   position: absolute;
-  right: 3px;
-  bottom: 3px;
-  width: 11px;
-  height: 11px;
+  right: 4px;
+  bottom: 4px;
+  width: 10px;
+  height: 10px;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    135deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.3) 2px,
-    rgba(0, 0, 0, 0.3) 3px
-  );
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><path d='M9 1L1 9M9 5.5L5.5 9' stroke='%23999999' stroke-width='1.2' stroke-linecap='round' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-size: 10px 10px;
 }

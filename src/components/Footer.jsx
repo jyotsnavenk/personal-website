@@ -37,7 +37,7 @@ function Colophon() {
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        COLOPHON
+        Colophon
       </button>
       {open && (
         <div className="footer__colophon-popover" role="dialog" aria-label="Colophon">

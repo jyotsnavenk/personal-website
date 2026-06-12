@@ -173,9 +173,13 @@ export default function HeroChimes() {
       if (now - str.lastPlayed < NOTE_COOLDOWN) return
       str.lastPlayed = now
       if (!audio) audio = buildAudio()
-      if (audio.ctx.state === 'suspended') audio.ctx.resume()
       const pan = (str.x / width) * 1.4 - 0.7
-      audio.play(str.note, speed / 30, pan)
+      const ring = () => audio.play(str.note, speed / 30, pan)
+      // The context boots suspended (autoplay policy) and resume() is async —
+      // playing before it has actually started drops the note into a stopped
+      // clock, so wait for resume the first time, then play immediately after.
+      if (audio.ctx.state === 'suspended') audio.ctx.resume().then(ring)
+      else ring()
     }
 
     const onPointerMove = (e) => {

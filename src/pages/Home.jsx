@@ -187,7 +187,7 @@ export default function Home() {
               <>
                 <p className="hero__paragraph">Previously I was a founding designer at two early stage startups {FULCRUM_LINK} and {HANOMI_LINK}. I am currently looking for my next role at a small startup to operate across EPD; engineering, product and design.</p>
                 <p className="hero__paragraph">I have found myself consistently at the intersection of design and engineering. I have a Master's in Creative Technology and Design to push the boundaries of my degree in electrical engineering and pursue blending art and technology for the sole purpose of making cool shit.</p>
-                <p className="hero__paragraph">Having recently returned from a sabbatical, I have a renewed sense of commitment to follow my creative pursuits; making short films, shooting photos on film, and writing essays. <em>Expose yourself to much of the world and see what emerges.</em></p>
+                <p className="hero__paragraph">I enjoy exploring wild possibilities in ambiguous problem spaces to come up with thoughtfully designed solutions. At the moment, I'm interested in how we can simplify existing workflows so people can focus on more valuable work.</p>
                 <p className="hero__paragraph">Let's build together. Email <span className="link-underline">jyotsna.venk@gmail.com</span></p>
                 <button className="hero__toggle" onClick={() => setExpanded(false)}><span className="hero__toggle-label">less information</span> &minus;</button>
               </>
@@ -202,6 +202,14 @@ export default function Home() {
       </section>
 
       <ProjectsGrid companyDescriptions={companyDescriptions} />
+
+      <section className="about grid" aria-label="About me">
+        <hr className="about__divider" />
+        <div className="about__content">
+          <p className="about__mark" aria-hidden="true">(&rdquo;)</p>
+          <p className="about__body">Welcome to my little corner of the internet. My name is Jyotsna, I'm a San Francisco based designer. I am currently exploring the vast expanse of creative computation and this website is my small, growing playground of projects. Having recently returned from a sabbatical, I have a renewed sense of commitment to always follow my creative pursuits; making short films, shooting photos on film, and writing essays. <em>Expose yourself to much of the world and see what emerges.</em></p>
+        </div>
+      </section>
 
       <Footer />
     </div>

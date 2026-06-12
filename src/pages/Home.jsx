@@ -1,13 +1,8 @@
-import { useEffect, useState, useRef } from 'react'
-import { usePretextLines, usePretextMeasure } from '../hooks/usePretext'
+import { useEffect, useLayoutEffect, useState, useRef } from 'react'
 import ProjectCard from '../components/ProjectCard'
 import Footer from '../components/Footer'
 import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
-
-const HERO_LINES = ['design AND', 'creative technology']
-const HERO_FONT = 'italic 500 16px "Martina Plantijn"'
-const BODY_TEXT = 'Jyotsna is a product designer based in SF. 2x founding designer who enjoys being a part of early-stage startups to build products from the ground up.'
 
 const PROJECTS = [
   { number: 1, title: 'Analytics Dashboard, Prototype',                 description: 'Prototypes the loss runs analytics dashboard with Claude Code. Blank canvas to engineering handoff in a single day.', imageSrc: '/project-images/img-lossruns.jpg' },
@@ -41,27 +36,6 @@ function parseProjectContent(raw) {
 }
 
 const companyDescriptions = parseProjectContent(projectContentRaw)
-
-function HeroLine({ text, delay, lineHeight }) {
-  const [revealed, setRevealed] = useState(false)
-  const lineMeasure = usePretextMeasure(text, HERO_FONT, 1100, lineHeight || 88)
-
-  useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), 300 + delay)
-    return () => clearTimeout(t)
-  }, [delay])
-
-  return (
-    <div
-      className="hero__line-wrap"
-      style={lineMeasure.ready ? { minHeight: lineMeasure.height } : undefined}
-    >
-      <span className={['hero__line', revealed ? 'hero__line--revealed' : ''].join(' ')}>
-        {text}
-      </span>
-    </div>
-  )
-}
 
 function StickyProjects({ companyDescriptions }) {
   const outerRef = useRef(null)
@@ -312,58 +286,95 @@ function StickyProjects({ companyDescriptions }) {
   )
 }
 
+const FULCRUM_LINK = (
+  <a href="https://www.withfulcrum.com/" target="_blank" rel="noopener noreferrer" className="link-underline">Fulcrum</a>
+)
+const HANOMI_LINK = (
+  <a href="https://www.hanomi.ai/" target="_blank" rel="noopener noreferrer" className="link-underline">Hanomi</a>
+)
+
 export default function Home() {
-  const [bodyRevealed, setBodyRevealed] = useState(false)
-  const [heroWidth, setHeroWidth] = useState(1100)
-  const heroRef = useRef(null)
+  const [expanded, setExpanded] = useState(false)
+  const bodyRef = useRef(null)
+  const prevHeight = useRef(null)
 
-  const bodyMeasure = usePretextMeasure(
-    BODY_TEXT,
-    '400 14px "Martina Plantijn"',
-    Math.min(heroWidth, 620),
-    21
-  )
+  // Animate the body between its collapsed and expanded heights. React has
+  // already swapped in the new content by the time this runs, so we use the
+  // previous height (captured in a ref) as the start, measure the new content's
+  // natural height as the target, then ease between them before releasing to
+  // `auto`. Height is cleared before measuring so a stale fixed height from an
+  // in-flight animation can't skew the target.
+  useLayoutEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    const from = prevHeight.current
 
-  useEffect(() => {
-    if (heroRef.current) setHeroWidth(heroRef.current.offsetWidth)
-  }, [])
+    el.style.transition = 'none'
+    el.style.overflow = 'hidden'
+    el.style.height = 'auto'
+    const to = el.getBoundingClientRect().height
+    prevHeight.current = to
 
-  useEffect(() => {
-    const t = setTimeout(() => setBodyRevealed(true), 700)
-    return () => clearTimeout(t)
-  }, [])
+    if (from == null || Math.abs(from - to) < 0.5) {
+      el.style.height = ''
+      el.style.overflow = ''
+      el.style.transition = ''
+      return
+    }
+
+    el.style.height = `${from}px`
+    el.getBoundingClientRect() // force reflow so the start height is committed
+    const isCollapsing = to < from
+    el.style.transition = isCollapsing
+      ? 'height 0.35s cubic-bezier(0.33, 0, 0, 1)'
+      : 'height 0.45s cubic-bezier(0.16, 1, 0.3, 1)'
+    el.style.height = `${to}px`
+
+    // Release the fixed height back to `auto` once the ease finishes. A timeout
+    // backs up transitionend in case it doesn't fire (e.g. a backgrounded tab).
+    let done = false
+    let timer
+    const finish = () => {
+      if (done) return
+      done = true
+      el.style.height = 'auto'
+      el.style.overflow = ''
+      el.style.transition = ''
+      el.removeEventListener('transitionend', onEnd)
+      clearTimeout(timer)
+    }
+    const onEnd = (e) => {
+      if (e.propertyName === 'height') finish()
+    }
+    el.addEventListener('transitionend', onEnd)
+    timer = setTimeout(finish, 550)
+    return () => {
+      el.removeEventListener('transitionend', onEnd)
+      clearTimeout(timer)
+    }
+  }, [expanded])
 
   return (
     <div className="page home animate-page-enter">
-      <section className="hero grid" ref={heroRef}>
-        <div className="hero__heading-wrap">
-          <h1 className="hero__heading">
-            {HERO_LINES.map((line, i) => (
-              <HeroLine key={line} text={line} delay={i * 80} lineHeight={20} />
-            ))}
-          </h1>
-        </div>
-
-        <div className="hero__body-wrap">
-          <div
-            className={['hero__body', bodyRevealed ? 'hero__body--visible' : ''].join(' ')}
-            style={bodyMeasure.ready ? { minHeight: bodyMeasure.height } : undefined}
-          >
-            <p>
-              <span className="hero__body-bold">Jyotsna is a product designer based in SF ツ</span><br />
-              2x founding designer who enjoys being a part of early-stage startups to build
-              products from the ground up. Most recently I was a founding designer at{' '}
-              <a href="https://www.withfulcrum.com/" target="_blank" rel="noopener noreferrer" className="link-underline">
-                Fulcrum
-              </a>{' '}
-              designing end-to-end agentic workflows for insurance brokerages and prior to that
-              I was a founding designer at{' '}
-              <a href="https://hanomi.ai/" target="_blank" rel="noopener noreferrer" className="link-underline">
-                Hanomi
-              </a>{' '}
-              designing intelligence layers for mechanical engineers.
-            </p>
-            <p>Every pixel of the work you see below is entirely my own.</p>
+      <section className="hero grid">
+        <div className="hero__content">
+          <h1 className="hero__name">Jyotsna Venkatesh</h1>
+          <p className="hero__subtitle">I'm a product designer pivoting to design engineering. Based in San Francisco.</p>
+          <div className="hero__body" ref={bodyRef}>
+            {expanded ? (
+              <>
+                <p className="hero__paragraph">Previously I was a founding designer at two early stage startups {FULCRUM_LINK} and {HANOMI_LINK}. I am currently looking for my next role at a small startup to operate across EPD; engineering, product and design.</p>
+                <p className="hero__paragraph">I have found myself consistently at the intersection of design and engineering. I have a Master's in Creative Technology and Design to push the boundaries of my degree in electrical engineering and pursue blending art and technology for the sole purpose of making cool shit.</p>
+                <p className="hero__paragraph">Having recently returned from a sabbatical, I have a renewed sense of commitment to follow my creative pursuits; making short films, shooting photos on film, and writing essays. <em>Expose yourself to much of the world and see what emerges.</em></p>
+                <p className="hero__paragraph">Let's build together. Email <span className="link-underline">jyotsna.venk@gmail.com</span></p>
+                <button className="hero__toggle" onClick={() => setExpanded(false)}><span className="hero__toggle-label">less information</span> &minus;</button>
+              </>
+            ) : (
+              <>
+                <p className="hero__paragraph">Previously I was a founding designer at {FULCRUM_LINK} and {HANOMI_LINK}.</p>
+                <button className="hero__toggle" onClick={() => setExpanded(true)}><span className="hero__toggle-label">more information</span> +</button>
+              </>
+            )}
           </div>
         </div>
       </section>

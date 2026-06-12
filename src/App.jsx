@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Vibecode from './pages/Vibecode'
 import Music from './pages/Music'
 import Exhibit from './pages/Exhibit'
+import Collections from './pages/Collections'
 
 export default function App() {
   const location = useLocation()
@@ -15,10 +16,11 @@ export default function App() {
       <Nav />
       <main>
         <Routes location={location} key={location.pathname}>
-          <Route path="/"        element={<Home />} />
-          <Route path="/codes"   element={<Vibecode />} />
-          <Route path="/plays"   element={<Music />} />
-          <Route path="/creates" element={<Exhibit />} />
+          <Route path="/"            element={<Home />} />
+          <Route path="/codes"       element={<Vibecode />} />
+          <Route path="/plays"       element={<Music />} />
+          <Route path="/creates"     element={<Exhibit />} />
+          <Route path="/collections" element={<Collections />} />
         </Routes>
       </main>
     </>

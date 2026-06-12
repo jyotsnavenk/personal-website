@@ -47,12 +47,24 @@
   font-size: inherit;
   font-weight: inherit;
   font-style: inherit;
-  color: inherit;
+  color: var(--color-text-primary);
   text-decoration: none;
+  position: relative;
 }
 
-.topbar__links a:hover {
-  color: var(--color-text-primary);
+.topbar__links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.topbar__links a:hover::after {
+  width: 100%;
 }
 
 @media (max-width: 600px) {

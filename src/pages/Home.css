@@ -18,6 +18,15 @@
   gap: 16px;
 }
 
+/* Interactive letter-curtain chimes fill the columns right of the hero text.
+   The wrapper stretches to the hero's full height so the canvas inside can
+   size itself off it. */
+.hero .hero-chimes {
+  grid-column: 8 / -1;
+  grid-row: 1;
+  min-height: 380px;
+}
+
 .hero__body {
   display: flex;
   flex-direction: column;
@@ -257,6 +266,11 @@
 
   .hero__content {
     grid-column: 1 / -1;
+  }
+
+  /* No hover on touch — the chime curtain only ships on desktop. */
+  .hero .hero-chimes {
+    display: none;
   }
 
   .about__content {

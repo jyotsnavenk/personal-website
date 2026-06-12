@@ -1,0 +1,13 @@
+.hero-chimes {
+  position: relative;
+  align-self: stretch;
+  min-height: 100%;
+}
+
+.hero-chimes__canvas {
+  position: absolute;
+  inset: 0;
+  font-family: var(--font-family);
+  cursor: crosshair;
+  touch-action: none;
+}

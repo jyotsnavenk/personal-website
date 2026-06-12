@@ -2,6 +2,7 @@ import { useLayoutEffect, useState, useRef } from 'react'
 import ProjectTile from '../components/ProjectTile'
 import ProjectPopover from '../components/ProjectPopover'
 import Footer from '../components/Footer'
+import HeroChimes from '../components/HeroChimes'
 import { getProjectImages } from '../data/projectImages'
 import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
@@ -221,6 +222,7 @@ export default function Home() {
             )}
           </div>
         </div>
+        <HeroChimes />
       </section>
 
       <ProjectsGrid companyDescriptions={companyDescriptions} />

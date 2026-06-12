@@ -171,15 +171,13 @@ export default function HeroChimes() {
       const str = strings[nearest]
       const now = performance.now()
       if (now - str.lastPlayed < NOTE_COOLDOWN) return
+      // Hover alone can't unlock audio (see unlock() below). Until a real
+      // gesture has started the context, stay silent rather than queue notes
+      // that would all fire at once the moment it unlocks.
+      if (!audio || audio.ctx.state !== 'running') return
       str.lastPlayed = now
-      if (!audio) audio = buildAudio()
       const pan = (str.x / width) * 1.4 - 0.7
-      const ring = () => audio.play(str.note, speed / 30, pan)
-      // The context boots suspended (autoplay policy) and resume() is async —
-      // playing before it has actually started drops the note into a stopped
-      // clock, so wait for resume the first time, then play immediately after.
-      if (audio.ctx.state === 'suspended') audio.ctx.resume().then(ring)
-      else ring()
+      audio.play(str.note, speed / 30, pan)
     }
 
     const onPointerMove = (e) => {
@@ -200,6 +198,29 @@ export default function HeroChimes() {
       mouse.vy = 0
       mouse.lastString = -1
     }
+
+    // Browsers only start an AudioContext from a genuine user-activation event
+    // — a click, key, or touch, NOT a hover. So we build and resume it on the
+    // first such gesture anywhere on the page (priming with a silent buffer for
+    // Safari/iOS), well before the cursor ever reaches the curtain.
+    let unlocked = false
+    const unlock = () => {
+      if (unlocked) return
+      unlocked = true
+      if (!audio) audio = buildAudio()
+      audio.ctx.resume()
+      const buf = audio.ctx.createBuffer(1, 1, 22050)
+      const src = audio.ctx.createBufferSource()
+      src.buffer = buf
+      src.connect(audio.ctx.destination)
+      src.start(0)
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('touchstart', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('touchstart', unlock, { passive: true })
+    window.addEventListener('keydown', unlock)
 
     const tick = (t) => {
       ctx2d.clearRect(0, 0, width, height)
@@ -254,6 +275,9 @@ export default function HeroChimes() {
       ro.disconnect()
       canvas.removeEventListener('pointermove', onPointerMove)
       canvas.removeEventListener('pointerleave', onPointerLeave)
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('touchstart', unlock)
+      window.removeEventListener('keydown', unlock)
       if (audio) audio.ctx.close()
     }
   }, [])

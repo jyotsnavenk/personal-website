@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './HeroChimes.css'
 
 // Vertical letter strings hanging like a curtain. Each string is a sentence
@@ -102,6 +102,12 @@ function buildAudio() {
 
 export default function HeroChimes() {
   const canvasRef = useRef(null)
+  // "click me" caption under the curtain: clicking it plays a synth flourish
+  // (the click is the gesture that unlocks audio) and the caption goes away.
+  // It also goes away on its own if a chime ever rings without it — e.g. a
+  // returning visitor whose browser lets hover start the sound directly.
+  const [ctaHidden, setCtaHidden] = useState(false)
+  const primeRef = useRef(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -175,6 +181,7 @@ export default function HeroChimes() {
       if (audio.ctx.state === 'running') {
         str.lastPlayed = now
         audio.play(str.note, speed / 30, (str.x / width) * 1.4 - 0.7)
+        setCtaHidden(true)
       } else {
         // Ask anyway: browsers that already trust the site (autoplay allowed)
         // will start right here, making hover itself the unlock. Where policy
@@ -202,8 +209,25 @@ export default function HeroChimes() {
         if (!str) return
         str.lastPlayed = performance.now()
         audio.play(str.note, 0.5, (str.x / width) * 1.4 - 0.7)
+        setCtaHidden(true)
       }
       return audio
+    }
+
+    // The caption's click handler lives outside this effect, so expose the
+    // flourish through a ref: resume on the click gesture, then roll a soft
+    // ascending arpeggio up the scale, panned left to right.
+    primeRef.current = () => {
+      ensureAudio()
+      audio.ctx.resume().catch(() => {})
+      const degrees = [0, 2, 4, 7]
+      degrees.forEach((deg, i) => {
+        setTimeout(() => {
+          if (audio.ctx.state === 'running') {
+            audio.play(SCALE[deg], 0.45 + i * 0.05, -0.4 + i * 0.25)
+          }
+        }, i * 110)
+      })
     }
 
     const GESTURES = ['pointerdown', 'pointerup', 'keydown', 'touchstart', 'touchend', 'click']
@@ -313,8 +337,18 @@ export default function HeroChimes() {
   }, [])
 
   return (
-    <div className="hero-chimes" aria-hidden="true">
-      <canvas ref={canvasRef} className="hero-chimes__canvas" />
+    <div className="hero-chimes">
+      <canvas ref={canvasRef} className="hero-chimes__canvas" aria-hidden="true" />
+      <button
+        type="button"
+        className={`hero-chimes__cta${ctaHidden ? ' hero-chimes__cta--hidden' : ''}`}
+        onClick={() => {
+          primeRef.current?.()
+          setCtaHidden(true)
+        }}
+      >
+        click me
+      </button>
     </div>
   )
 }

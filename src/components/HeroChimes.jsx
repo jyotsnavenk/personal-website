@@ -43,6 +43,11 @@ const DRAG = 0.945         // velocity retained per frame
 const SWAY_AMP = 3         // idle curtain sway amplitude (px)
 const BOUNCE = -0.65       // velocity retained (and flipped) on wall hit
 const NOTE_COOLDOWN = 90   // ms between retriggers of the same string
+const REVEAL_MS = 1300     // load-time top-to-bottom mask wipe duration
+const REVEAL_FEATHER = 72  // px softness of the wipe's leading edge
+
+// easeOutCubic — the wipe rushes in then eases as it nears the bottom.
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
 
 function buildAudio() {
   const ctx = new (window.AudioContext || window.webkitAudioContext)()
@@ -120,6 +125,7 @@ export default function HeroChimes() {
     let height = 0
     let raf = 0
     let audio = null
+    let revealStart = 0     // timestamp of the first frame; anchors the load wipe
 
     const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, lastString: -1, pendingRing: -1 }
 
@@ -277,6 +283,14 @@ export default function HeroChimes() {
       ctx2d.clearRect(0, 0, width, height)
       const sway = reduceMotion ? 0 : SWAY_AMP
 
+      // Load-time mask: a soft horizontal edge wipes down the curtain, revealing
+      // each letter as it passes. reduceMotion shows everything immediately.
+      if (!revealStart) revealStart = t
+      const front = reduceMotion
+        ? Infinity
+        : easeOutCubic(Math.min(1, (t - revealStart) / REVEAL_MS)) *
+          (height + REVEAL_FEATHER)
+
       for (const p of particles) {
         // Idle sway: each string ripples gently like fabric in a draft.
         const targetX = p.restX + Math.sin(t / 1600 + p.phase + p.restY * 0.012) * sway
@@ -306,10 +320,22 @@ export default function HeroChimes() {
         if (p.y < 4) { p.y = 4; p.vy *= BOUNCE }
         else if (p.y > height - 4) { p.y = height - 4; p.vy *= BOUNCE }
 
-        // Letters fade up as they get agitated, then settle back to gray.
+        // How far the load wipe has revealed this letter (by its rest row, so
+        // the edge stays straight even as the curtain sways). 0 = still masked.
+        const reveal =
+          front === Infinity
+            ? 1
+            : Math.min(1, Math.max(0, (front - p.restY) / REVEAL_FEATHER))
+        if (reveal <= 0) continue
+
+        // Letters fade up as they get agitated, then settle back to gray. On
+        // reveal they also brighten briefly at the wipe's edge and rise the last
+        // few pixels into place, so the curtain feels like it's dropping in.
         const energy = Math.min(1, Math.hypot(p.vx, p.vy) / 6)
-        ctx2d.fillStyle = `rgba(0, 0, 0, ${0.32 + energy * 0.55})`
-        ctx2d.fillText(p.ch, p.x, p.y)
+        const edgeGlow = reveal * (1 - reveal) * 4 // peaks mid-transition
+        const alpha = Math.min(1, (0.32 + energy * 0.55) * reveal + edgeGlow * 0.4)
+        ctx2d.fillStyle = `rgba(0, 0, 0, ${alpha})`
+        ctx2d.fillText(p.ch, p.x, p.y - (1 - reveal) * 5)
       }
       raf = requestAnimationFrame(tick)
     }

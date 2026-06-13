@@ -180,11 +180,40 @@
   grid-row: var(--tile-row);
 }
 
-/* Desktop emphasis: the company name and its opening sentence are black; the
-   rest of the description stays light gray (the block's default color). */
-.projects--aligned .projects__company-name,
-.projects--aligned .projects__company-lead {
-  color: var(--color-text-primary);
+/* Scroll-driven "ink mask": a gray→black reveal sweeps across the text letter
+   by letter as the block scrolls up the viewport. useInkReveal sets a single
+   --p (scroll progress, 0 → 1) on the block; each letter carries its own --pos
+   (0 → 1 in reading order). Per letter, reveal = clamp((p·K − pos)/F), so the
+   transition edge is F wide and rides ahead of p by the K factor — small F
+   keeps the edge crisp, like a mask being pulled across the words. */
+.projects__company-block--reveal {
+  --p: 0;
+  --ink-feather: 0.08; /* fraction of the text mid-transition at any moment */
+  --ink-lead: 1.08; /* 1 + feather, so the last letter reaches full black */
+  --ink-start: rgba(0, 0, 0, 0.18);
+  --ink-end: var(--color-text-primary);
+}
+
+.projects__company-block--reveal .projects__company-name,
+.projects__company-block--reveal .projects__company-desc {
+  color: var(--ink-start);
+}
+
+.projects__company-block--reveal .ink__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.projects__company-block--reveal .ink__char {
+  color: color-mix(
+    in srgb,
+    var(--ink-end)
+      calc(
+        clamp(0, (var(--p) * var(--ink-lead) - var(--pos)) / var(--ink-feather), 1) *
+          100%
+      ),
+    var(--ink-start)
+  );
 }
 
 /* === ABOUT === */

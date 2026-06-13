@@ -115,7 +115,7 @@ export default function HeroChimes() {
     let raf = 0
     let audio = null
 
-    const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, lastString: -1 }
+    const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, lastString: -1, pendingRing: -1 }
 
     const layout = () => {
       const rect = canvas.parentElement.getBoundingClientRect()
@@ -156,7 +156,7 @@ export default function HeroChimes() {
       }
     }
 
-    const strum = (speed) => {
+    const strum = (speed, force = false) => {
       // Nearest string under the cursor; ring it when we cross onto a new one
       // so a sweep across the curtain plays a glissando.
       let nearest = -1
@@ -166,18 +166,59 @@ export default function HeroChimes() {
         if (d < best) { best = d; nearest = s }
       }
       if (nearest === -1) { mouse.lastString = -1; return }
-      if (nearest === mouse.lastString) return
+      if (nearest === mouse.lastString && !force) return
       mouse.lastString = nearest
       const str = strings[nearest]
       const now = performance.now()
       if (now - str.lastPlayed < NOTE_COOLDOWN) return
-      // Hover alone can't unlock audio (see unlock() below). Until a real
-      // gesture has started the context, stay silent rather than queue notes
-      // that would all fire at once the moment it unlocks.
-      if (!audio || audio.ctx.state !== 'running') return
-      str.lastPlayed = now
-      const pan = (str.x / width) * 1.4 - 0.7
-      audio.play(str.note, speed / 30, pan)
+      ensureAudio()
+      if (audio.ctx.state === 'running') {
+        str.lastPlayed = now
+        audio.play(str.note, speed / 30, (str.x / width) * 1.4 - 0.7)
+      } else {
+        // Ask anyway: browsers that already trust the site (autoplay allowed)
+        // will start right here, making hover itself the unlock. Where policy
+        // refuses, remember the string so the statechange handler can ring it
+        // the moment a qualifying gesture starts the clock — no stroke wasted.
+        mouse.pendingRing = nearest
+        audio.ctx.resume().catch(() => {})
+      }
+    }
+
+    // Audio can only start from a user-activation event (press / key / touch
+    // — hover does not qualify; that's a browser rule with no bypass). We get
+    // as close to hover-unlock as possible: try to resume on every stroke
+    // (above), unlock on any qualifying gesture anywhere on the page (capture
+    // phase, so nothing can swallow it), and make the unlock itself audible —
+    // the instant the context starts, the string under the cursor rings.
+    const ensureAudio = () => {
+      if (audio) return audio
+      audio = buildAudio()
+      audio.ctx.onstatechange = () => {
+        if (audio.ctx.state !== 'running') return
+        const ring = mouse.lastString >= 0 ? mouse.lastString : mouse.pendingRing
+        mouse.pendingRing = -1
+        const str = strings[ring]
+        if (!str) return
+        str.lastPlayed = performance.now()
+        audio.play(str.note, 0.5, (str.x / width) * 1.4 - 0.7)
+      }
+      return audio
+    }
+
+    const GESTURES = ['pointerdown', 'pointerup', 'keydown', 'touchstart', 'touchend', 'click']
+    const tryUnlock = () => {
+      ensureAudio()
+      if (audio.ctx.state !== 'suspended') return
+      audio.ctx.resume().catch(() => {})
+      // Silent one-sample buffer fully unlocks audio on Safari/iOS.
+      const src = audio.ctx.createBufferSource()
+      src.buffer = audio.ctx.createBuffer(1, 1, 22050)
+      src.connect(audio.ctx.destination)
+      src.start(0)
+    }
+    for (const ev of GESTURES) {
+      window.addEventListener(ev, tryUnlock, { capture: true, passive: true })
     }
 
     const onPointerMove = (e) => {
@@ -191,36 +232,20 @@ export default function HeroChimes() {
       strum(Math.hypot(mouse.vx, mouse.vy))
     }
 
+    // Pressing the curtain plucks the string under the cursor — and because a
+    // press is a qualifying gesture, it doubles as the audio unlock.
+    const onPointerDown = () => {
+      strum(12, true)
+    }
+
     const onPointerLeave = () => {
       mouse.x = -9999
       mouse.y = -9999
       mouse.vx = 0
       mouse.vy = 0
       mouse.lastString = -1
+      mouse.pendingRing = -1
     }
-
-    // Browsers only start an AudioContext from a genuine user-activation event
-    // — a click, key, or touch, NOT a hover. So we build and resume it on the
-    // first such gesture anywhere on the page (priming with a silent buffer for
-    // Safari/iOS), well before the cursor ever reaches the curtain.
-    let unlocked = false
-    const unlock = () => {
-      if (unlocked) return
-      unlocked = true
-      if (!audio) audio = buildAudio()
-      audio.ctx.resume()
-      const buf = audio.ctx.createBuffer(1, 1, 22050)
-      const src = audio.ctx.createBufferSource()
-      src.buffer = buf
-      src.connect(audio.ctx.destination)
-      src.start(0)
-      window.removeEventListener('pointerdown', unlock)
-      window.removeEventListener('touchstart', unlock)
-      window.removeEventListener('keydown', unlock)
-    }
-    window.addEventListener('pointerdown', unlock)
-    window.addEventListener('touchstart', unlock, { passive: true })
-    window.addEventListener('keydown', unlock)
 
     const tick = (t) => {
       ctx2d.clearRect(0, 0, width, height)
@@ -267,6 +292,7 @@ export default function HeroChimes() {
     const ro = new ResizeObserver(layout)
     ro.observe(canvas.parentElement)
     canvas.addEventListener('pointermove', onPointerMove)
+    canvas.addEventListener('pointerdown', onPointerDown)
     canvas.addEventListener('pointerleave', onPointerLeave)
     raf = requestAnimationFrame(tick)
 
@@ -274,11 +300,15 @@ export default function HeroChimes() {
       cancelAnimationFrame(raf)
       ro.disconnect()
       canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerdown', onPointerDown)
       canvas.removeEventListener('pointerleave', onPointerLeave)
-      window.removeEventListener('pointerdown', unlock)
-      window.removeEventListener('touchstart', unlock)
-      window.removeEventListener('keydown', unlock)
-      if (audio) audio.ctx.close()
+      for (const ev of GESTURES) {
+        window.removeEventListener(ev, tryUnlock, { capture: true })
+      }
+      if (audio) {
+        audio.ctx.onstatechange = null
+        audio.ctx.close()
+      }
     }
   }, [])
 

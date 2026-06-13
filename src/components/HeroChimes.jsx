@@ -140,6 +140,8 @@ export default function HeroChimes() {
 
       const count = Math.max(3, Math.min(SENTENCES.length, Math.floor(width / 56)))
       const gap = width / (count + 1)
+      // Expose the first string's x so the caption can left-align with it.
+      canvas.parentElement.style.setProperty('--chimes-first-x', `${gap}px`)
       particles = []
       strings = []
       for (let s = 0; s < count; s++) {

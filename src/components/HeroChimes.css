@@ -17,8 +17,9 @@
 .hero-chimes__cta {
   position: absolute;
   bottom: -32px;
-  left: 50%;
-  transform: translateX(-50%);
+  /* Letters are centered on the first string's x, so back off half a glyph
+     to sit flush with the left edge of the letter column. */
+  left: calc(var(--chimes-first-x, 0px) - 7px);
   font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);

@@ -4,6 +4,8 @@ import ProjectPopover from '../components/ProjectPopover'
 import Footer from '../components/Footer'
 import HeroChimes from '../components/HeroChimes'
 import { getProjectImages } from '../data/projectImages'
+import { useInkReveal } from '../hooks/useInkReveal'
+import InkText from '../components/InkText'
 import projectContentRaw from '../data/project-content.md?raw'
 import './Home.css'
 
@@ -35,11 +37,6 @@ const tileRow = (i) => Math.floor(i / 2) + 1
 // Splits a company description into its opening sentence (shown black on
 // desktop) and the remainder (light gray). Falls back to the whole body if
 // there is no sentence break.
-const splitLead = (body) => {
-  const match = body.match(/^(.*?\.)\s+(.*)$/)
-  return match ? { lead: match[1], rest: match[2] } : { lead: body, rest: '' }
-}
-
 const IMAGE_RATIO = 1080 / 650
 const POPOVER_HEADER = 38 // px — header row height used to derive width
 const POPOVER_PAD = 24    // px — margins around the image area
@@ -59,6 +56,7 @@ function ProjectsGrid({ companyDescriptions }) {
   const [popovers, setPopovers] = useState([])
   const zRef = useRef(20)
   const idRef = useRef(0)
+  const registerReveal = useInkReveal()
 
   // Opens a popover to the left of the clicked tile, sized to 55vh with the
   // width derived from the image aspect ratio. Repeat opens cascade like
@@ -105,22 +103,16 @@ function ProjectsGrid({ companyDescriptions }) {
 
   return (
     <section className="projects grid projects--aligned" aria-label="Portfolio projects">
-      {companyDescriptions.map((entry) => {
-        const { lead, rest } = splitLead(entry.body)
-        return (
-          <div
-            key={entry.title}
-            className="projects__company-block projects__company-block--aligned"
-            style={{ '--block-row': COMPANY_START_ROW[entry.title] }}
-          >
-            <p className="projects__company-name">{entry.title}</p>
-            <p className="projects__company-desc">
-              <span className="projects__company-lead">{lead}</span>
-              {rest && ` ${rest}`}
-            </p>
-          </div>
-        )
-      })}
+      {companyDescriptions.map((entry) => (
+        <div
+          key={entry.title}
+          ref={registerReveal}
+          className="projects__company-block projects__company-block--aligned projects__company-block--reveal"
+          style={{ '--block-row': COMPANY_START_ROW[entry.title] }}
+        >
+          <InkText name={entry.title} desc={entry.body} />
+        </div>
+      ))}
 
       <div className="projects__cards">{tiles}</div>
 

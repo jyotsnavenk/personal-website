@@ -38,8 +38,8 @@ const PARTIALS = [
 const FONT_SIZE = 14
 const LETTER_GAP = 19      // vertical spacing between letters on a string
 const INFLUENCE = 90       // px radius of the cursor's push field
-const SPRING = 0.018       // pull back toward rest position
-const DRAG = 0.945         // velocity retained per frame
+const SPRING = 0.028       // pull back toward rest position
+const DRAG = 0.92          // velocity retained per frame
 const SWAY_AMP = 3         // idle curtain sway amplitude (px)
 const BOUNCE = -0.65       // velocity retained (and flipped) on wall hit
 const NOTE_COOLDOWN = 90   // ms between retriggers of the same string
@@ -295,15 +295,17 @@ export default function HeroChimes() {
         // Idle sway: each string ripples gently like fabric in a draft.
         const targetX = p.restX + Math.sin(t / 1600 + p.phase + p.restY * 0.012) * sway
 
-        // Cursor push: force falls off linearly inside the influence radius
-        // and inherits the cursor's velocity for a natural flick.
+        // Cursor push: a gentle nudge that eases off quadratically toward the
+        // edge of the influence field, so only the letters nearest the cursor
+        // stir — and they sway back like windchimes rather than scattering.
         const dx = p.x - mouse.x
         const dy = p.y - mouse.y
         const dist = Math.hypot(dx, dy)
         if (dist < INFLUENCE && dist > 0.001) {
-          const force = (1 - dist / INFLUENCE) * 0.5
-          p.vx += (dx / dist) * force * 3 + mouse.vx * force * 0.22
-          p.vy += (dy / dist) * force * 3 + mouse.vy * force * 0.22
+          const falloff = 1 - dist / INFLUENCE
+          const force = falloff * falloff * 0.5
+          p.vx += (dx / dist) * force * 1.2 + mouse.vx * force * 0.08
+          p.vy += (dy / dist) * force * 1.2 + mouse.vy * force * 0.08
         }
 
         // Spring back to rest, drag, integrate.

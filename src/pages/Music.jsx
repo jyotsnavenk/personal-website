@@ -9,7 +9,7 @@ export default function Music() {
 
   return (
     <div className="page placeholder animate-page-enter">
-      <div className="placeholder__content">
+      <div className="placeholder__content grid">
         <span
           className="placeholder__label"
           style={labelMeasure.ready ? { minHeight: labelMeasure.height } : undefined}

@@ -1,34 +1,27 @@
-import { usePretextMeasure } from '../hooks/usePretext'
 import Footer from '../components/Footer'
-import './Placeholder.css'
+import ExhibitSection from '../components/ExhibitSection'
+import { EXHIBITS } from '../data/exhibits'
+import './Exhibit.css'
 
 export default function Exhibit() {
-  const labelMeasure = usePretextMeasure('exhibit', '400 12px "Martina Plantijn"', 300, 14)
-  const titleMeasure = usePretextMeasure('coming soon', 'italic 500 16px "Martina Plantijn"', 800, 70)
-  const subMeasure = usePretextMeasure('creative work & side projects', '400 14px "Martina Plantijn"', 600, 24)
-
   return (
-    <div className="page placeholder animate-page-enter">
-      <div className="placeholder__content">
-        <span
-          className="placeholder__label"
-          style={labelMeasure.ready ? { minHeight: labelMeasure.height } : undefined}
-        >
-          exhibit
-        </span>
-        <h1
-          className="placeholder__title"
-          style={titleMeasure.ready ? { minHeight: titleMeasure.height } : undefined}
-        >
-          coming soon
-        </h1>
-        <p
-          className="placeholder__sub"
-          style={subMeasure.ready ? { minHeight: subMeasure.height } : undefined}
-        >
-          creative work & side projects
-        </p>
-      </div>
+    <div className="page exhibit animate-page-enter">
+      <section className="exhibit-hero grid">
+        <div className="exhibit-hero__content">
+          <span className="exhibit-hero__label">exhibits</span>
+          <h1 className="exhibit-hero__name">Jyotsna Venkatesh</h1>
+          <p className="exhibit-hero__subtitle">I was an audio/visual installation artist for two years in grad school.</p>
+          <div className="exhibit-hero__body">
+            <p className="exhibit-hero__paragraph">I have been consistently at the intersection of design and engineering. I have a Master's in Creative Technology and Design to push the boundaries of my degree in electrical engineering and pursue blending art and technology for the sole purpose of making cool shit. I was tinkering around with touchdesigner, sensors, and projectors.</p>
+            <p className="exhibit-hero__paragraph">I enjoyed exploring stories blending music, dreams and reality through movement.</p>
+          </div>
+        </div>
+      </section>
+
+      {EXHIBITS.map((project) => (
+        <ExhibitSection key={project.title} {...project} />
+      ))}
+
       <Footer />
     </div>
   )

@@ -1,0 +1,143 @@
+/* One project block. Content sits on the shared 12-column grid, starting at
+   column 3 (aligned with the hero) and spanning a wide media column. */
+.exhibit-project {
+  padding-top: 0;
+  padding-bottom: 44px;
+}
+
+.exhibit-project__content {
+  grid-column: 2 / span 8;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Caption and title share an 8px gap, separate from the 16px content rhythm. */
+.exhibit-project__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exhibit-project__caption {
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.exhibit-project__title {
+  font-family: var(--font-family);
+  font-size: var(--text-heading);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+/* 55vh video frame. */
+.exhibit-project__video {
+  position: relative;
+  width: 100%;
+  height: 55vh;
+  background: var(--color-bg-secondary, rgba(0, 0, 0, 0.04));
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+/* Split layout: portrait video on the left, a 2×2 image grid on the right.
+   The video keeps a true 9:16 ratio (no letterboxing) and anchors the row
+   height; the image grid stretches to match. Used for vertical videos. */
+/* Portrait video (true 9:16) on the left, a 2×2 grid on the right. The grid's
+   367:320 ratio gives each cell the same 367:320 shape as the other projects'
+   images, and lands the grid at ~the same height as the video. */
+.exhibit-project__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--grid-gap);
+  align-items: start;
+}
+
+.exhibit-project__video--portrait {
+  height: auto;
+  aspect-ratio: 9 / 16;
+}
+
+.exhibit-project__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--grid-gap);
+  aspect-ratio: 367 / 320;
+}
+
+.exhibit-project__grid img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+  border-radius: 20px;
+}
+
+.exhibit-project__video iframe,
+.exhibit-project__video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* An uploaded video is cropped to fill the frame (vs. an embed's own letterboxing). */
+.exhibit-project__video video {
+  object-fit: cover;
+}
+
+/* Three images in an even row, each a 4:3 thumbnail. */
+.exhibit-project__images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+}
+
+.exhibit-project__images img,
+.exhibit-project__placeholder--img {
+  width: 100%;
+  aspect-ratio: 367 / 320;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  border-radius: 20px;
+}
+
+/* Dashed slot shown until real media is supplied. */
+.exhibit-project__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text-muted);
+  font-variant: small-caps;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .exhibit-project__content {
+    grid-column: 1 / -1;
+  }
+
+  .exhibit-project__images {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stack the split layout: portrait video, then the image grid below. */
+  .exhibit-project__split {
+    grid-template-columns: 1fr;
+  }
+}

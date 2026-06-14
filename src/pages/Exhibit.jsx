@@ -1,5 +1,6 @@
 import Footer from '../components/Footer'
 import ExhibitSection from '../components/ExhibitSection'
+import ExhibitCluster from '../components/ExhibitCluster'
 import { EXHIBITS } from '../data/exhibits'
 import './Exhibit.css'
 
@@ -16,6 +17,7 @@ export default function Exhibit() {
             <p className="exhibit-hero__paragraph">I enjoyed exploring stories blending music, dreams and reality through movement.</p>
           </div>
         </div>
+        <ExhibitCluster />
       </section>
 
       {EXHIBITS.map((project) => (

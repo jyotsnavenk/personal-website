@@ -49,57 +49,40 @@ const REVEAL_FEATHER = 72  // px softness of the wipe's leading edge
 // easeOutCubic — the wipe rushes in then eases as it nears the bottom.
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
 
-function buildAudio() {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)()
-  const master = ctx.createGain()
-  master.gain.value = 0.5
-  master.connect(ctx.destination)
-
-  // A soft feedback delay adds the lingering shimmer of real chimes.
-  const delay = ctx.createDelay(1)
-  delay.delayTime.value = 0.31
-  const feedback = ctx.createGain()
-  feedback.gain.value = 0.35
-  const damp = ctx.createBiquadFilter()
-  damp.type = 'lowpass'
-  damp.frequency.value = 2200
-  const wet = ctx.createGain()
-  wet.gain.value = 0.3
-  delay.connect(damp)
-  damp.connect(feedback)
-  feedback.connect(delay)
-  damp.connect(wet)
-  wet.connect(ctx.destination)
+// The chime voices are played through Strudel's synth engine (superdough): each
+// note stacks several sine partials (the tubular-bell ratios above), with a bit
+// of delay + room on the fundamental for the lingering windchime shimmer.
+function buildAudio(mod) {
+  const ctx = mod.getAudioContext()
 
   const play = (freq, velocity, pan) => {
-    const now = ctx.currentTime
-    const voice = ctx.createGain()
-    const panner = ctx.createStereoPanner()
-    panner.pan.value = pan
-    voice.connect(panner)
-    panner.connect(master)
-    panner.connect(delay)
-
+    if (ctx.state !== 'running') return
     const level = 0.05 + Math.min(velocity, 1) * 0.12
-    voice.gain.setValueAtTime(0, now)
-    voice.gain.linearRampToValueAtTime(level, now + 0.006)
-    voice.gain.exponentialRampToValueAtTime(0.0001, now + 2.8)
+    const t = ctx.currentTime + 0.02
+    const p = pan / 2 + 0.5 // -1..1 stereo → superdough's 0..1 pan
 
-    for (const { ratio, gain } of PARTIALS) {
-      const osc = ctx.createOscillator()
-      const g = ctx.createGain()
-      osc.type = 'sine'
-      // Slight random detune keeps repeated notes organic.
-      osc.frequency.value = freq * ratio * (1 + (Math.random() - 0.5) * 0.003)
-      g.gain.value = gain
-      // Upper partials die faster than the fundamental, as on a real chime.
-      g.gain.setValueAtTime(gain, now)
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 2.8 / ratio)
-      osc.connect(g)
-      g.connect(voice)
-      osc.start(now)
-      osc.stop(now + 3)
-    }
+    PARTIALS.forEach(({ ratio, gain }, i) => {
+      mod.superdough(
+        {
+          s: 'sine',
+          // Slight random detune keeps repeated notes organic.
+          freq: freq * ratio * (1 + (Math.random() - 0.5) * 0.003),
+          gain: level * gain * 2.5,
+          pan: p,
+          attack: 0.004,
+          // Upper partials die faster than the fundamental, as on a real chime.
+          decay: 2.8 / ratio,
+          sustain: 0,
+          release: 0.05,
+          // Lingering shimmer, only on the fundamental so it stays clean.
+          ...(i === 0
+            ? { delay: 0.3, delaytime: 0.31, delayfeedback: 0.35, room: 0.4, size: 3 }
+            : {}),
+        },
+        t,
+        2.8 / ratio,
+      )
+    })
   }
 
   return { ctx, play }
@@ -124,7 +107,9 @@ export default function HeroChimes() {
     let width = 0
     let height = 0
     let raf = 0
-    let audio = null
+    let audio = null        // { ctx, play } — null until Strudel finishes loading
+    let strudel = null      // the @strudel/web module
+    let strudelLoading = false
     let revealStart = 0     // timestamp of the first frame; anchors the load wipe
 
     const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, lastString: -1, pendingRing: -1 }
@@ -186,7 +171,7 @@ export default function HeroChimes() {
       const now = performance.now()
       if (now - str.lastPlayed < NOTE_COOLDOWN) return
       ensureAudio()
-      if (audio.ctx.state === 'running') {
+      if (audio && audio.ctx.state === 'running') {
         str.lastPlayed = now
         audio.play(str.note, speed / 30, (str.x / width) * 1.4 - 0.7)
         setCtaHidden(true)
@@ -196,29 +181,43 @@ export default function HeroChimes() {
         // refuses, remember the string so the statechange handler can ring it
         // the moment a qualifying gesture starts the clock — no stroke wasted.
         mouse.pendingRing = nearest
-        audio.ctx.resume().catch(() => {})
+        audio?.ctx.resume().catch(() => {})
       }
     }
 
+    // Ring the string under the cursor (or the one remembered while audio was
+    // still locked) the instant the context starts running.
+    const ringPending = () => {
+      if (!audio || audio.ctx.state !== 'running') return
+      const ring = mouse.lastString >= 0 ? mouse.lastString : mouse.pendingRing
+      mouse.pendingRing = -1
+      const str = strings[ring]
+      if (!str) return
+      str.lastPlayed = performance.now()
+      audio.play(str.note, 0.5, (str.x / width) * 1.4 - 0.7)
+      setCtaHidden(true)
+    }
+
     // Audio can only start from a user-activation event (press / key / touch
-    // — hover does not qualify; that's a browser rule with no bypass). We get
-    // as close to hover-unlock as possible: try to resume on every stroke
-    // (above), unlock on any qualifying gesture anywhere on the page (capture
-    // phase, so nothing can swallow it), and make the unlock itself audible —
-    // the instant the context starts, the string under the cursor rings.
+    // — hover does not qualify; that's a browser rule with no bypass). Strudel
+    // is loaded lazily on the first gesture (so the homepage stays light), then
+    // its synth engine drives the chimes. `audio` stays null until it resolves;
+    // every call site guards for that.
     const ensureAudio = () => {
-      if (audio) return audio
-      audio = buildAudio()
-      audio.ctx.onstatechange = () => {
-        if (audio.ctx.state !== 'running') return
-        const ring = mouse.lastString >= 0 ? mouse.lastString : mouse.pendingRing
-        mouse.pendingRing = -1
-        const str = strings[ring]
-        if (!str) return
-        str.lastPlayed = performance.now()
-        audio.play(str.note, 0.5, (str.x / width) * 1.4 - 0.7)
-        setCtaHidden(true)
-      }
+      if (strudel || strudelLoading) return audio
+      strudelLoading = true
+      import('@strudel/web')
+        .then(async (mod) => {
+          await mod.initStrudel() // registers the synth voices (no samples)
+          strudel = mod
+          audio = buildAudio(mod)
+          audio.ctx.onstatechange = () => {
+            if (audio.ctx.state === 'running') ringPending()
+          }
+          audio.ctx.resume().catch(() => {})
+          ringPending()
+        })
+        .catch(() => { strudelLoading = false })
       return audio
     }
 
@@ -227,11 +226,11 @@ export default function HeroChimes() {
     // ascending arpeggio up the scale, panned left to right.
     primeRef.current = () => {
       ensureAudio()
-      audio.ctx.resume().catch(() => {})
+      audio?.ctx.resume().catch(() => {})
       const degrees = [0, 2, 4, 7]
       degrees.forEach((deg, i) => {
         setTimeout(() => {
-          if (audio.ctx.state === 'running') {
+          if (audio && audio.ctx.state === 'running') {
             audio.play(SCALE[deg], 0.45 + i * 0.05, -0.4 + i * 0.25)
           }
         }, i * 110)
@@ -241,7 +240,7 @@ export default function HeroChimes() {
     const GESTURES = ['pointerdown', 'pointerup', 'keydown', 'touchstart', 'touchend', 'click']
     const tryUnlock = () => {
       ensureAudio()
-      if (audio.ctx.state !== 'suspended') return
+      if (!audio || audio.ctx.state !== 'suspended') return
       audio.ctx.resume().catch(() => {})
       // Silent one-sample buffer fully unlocks audio on Safari/iOS.
       const src = audio.ctx.createBufferSource()
@@ -359,10 +358,10 @@ export default function HeroChimes() {
       for (const ev of GESTURES) {
         window.removeEventListener(ev, tryUnlock, { capture: true })
       }
-      if (audio) {
-        audio.ctx.onstatechange = null
-        audio.ctx.close()
-      }
+      // Don't close the context — it's Strudel's shared singleton, used by
+      // other pages too. Just detach our listener.
+      if (audio) audio.ctx.onstatechange = null
+
     }
   }, [])
 

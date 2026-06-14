@@ -7,17 +7,26 @@
    right-side chime interaction, so the content spans a wider column. */
 
 .exhibit-hero {
-  min-height: 55vh;
-  align-content: start;
-  padding-top: 25vh;
+  min-height: 70vh;
+  align-content: stretch;
+  padding-top: 0;
   padding-bottom: 64px;
 }
 
 .exhibit-hero__content {
-  grid-column: 2 / span 5;
+  grid-column: 2 / span 6;
+  align-self: center;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* Mirror the homepage chimes: the cluster fills the columns right of the hero
+   text and stretches to the hero's full height, so the letters live in the
+   exact same space the homepage strings occupy. */
+.exhibit-hero .exhibit-cluster {
+  grid-column: 8 / -1;
+  align-self: stretch;
 }
 
 .exhibit-hero__label {
@@ -69,6 +78,10 @@
   }
 
   .exhibit-hero__content {
+    grid-column: 1 / -1;
+  }
+
+  .exhibit-hero .exhibit-cluster {
     grid-column: 1 / -1;
   }
 }

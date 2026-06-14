@@ -4,6 +4,7 @@ import './Footer.css'
 
 const COLOPHON_ITEMS = [
   'Type set in Martina Plantijn',
+  'Music with Strudel',
   'Hosted on Vercel',
   'Source on GitHub',
   'Paired with Claude Code',

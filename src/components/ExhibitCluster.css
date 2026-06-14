@@ -1,0 +1,49 @@
+.exhibit-cluster {
+  position: relative;
+  align-self: stretch;
+  min-height: 320px;
+}
+
+.exhibit-cluster__canvas {
+  position: absolute;
+  inset: 0;
+  font-family: var(--font-family);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Link-styled caption under the cluster; clicking it strikes the cluster and
+   the caption fades away. */
+.exhibit-cluster__cta {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  color: rgba(0, 0, 0, 0.35);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease, opacity 0.4s ease;
+}
+
+.exhibit-cluster__cta:hover {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.exhibit-cluster__cta--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .exhibit-cluster {
+    min-height: 240px;
+    margin-top: 32px;
+  }
+}

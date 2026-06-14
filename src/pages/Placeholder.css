@@ -4,13 +4,11 @@
   flex-direction: column;
 }
 
+/* Grid columns, gap, and horizontal padding come from the shared `.grid`
+   class (globals.css) so every page shares one column system. This only adds
+   the placeholder's vertical centering and rhythm. */
 .placeholder__content {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: var(--grid-gap);
-  padding-left: var(--grid-padding);
-  padding-right: var(--grid-padding);
   align-content: center;
   padding-top: 80px;
   padding-bottom: 80px;
